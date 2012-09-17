@@ -151,6 +151,23 @@ class ProcessingMainPlotPanel(val project:Viewable)
                      " r1: " + resp1Time + 
                      " r2: " + resp2Time)
 
+    // Add a timing result
+    addStaticTiming(staticTime)
+    project.viewInfo.response1View.foreach {r1 =>
+      val model = project.gpModels(r1)
+      val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
+        (lb, ub, model.theta(f).toFloat)
+      }
+      addElipticalTiming(project.viewInfo.numUnclippedPoints, radii, resp1Time)
+    }
+    project.viewInfo.response2View.foreach {r2 =>
+      val model = project.gpModels(r2)
+      val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
+        (lb, ub, model.theta(f).toFloat)
+      }
+      addElipticalTiming(project.viewInfo.numUnclippedPoints, radii, resp2Time)
+    }
+
     // Draw the fps counter
     //drawRenderTime(endTime-startTime)
   }
