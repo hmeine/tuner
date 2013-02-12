@@ -425,6 +425,17 @@ class Viewable(config:ProjConfig, val path:String, val designSites:Table)
     _region = r
   }
 
+  def numSamplesInRegion = {
+    var count = 0
+    for(i <- 0 until designSites.numRows) {
+      val tpl = designSites.tuple(i)
+      val inputs = tpl.filterKeys {k => inputFields contains k}
+      if(region.inside(inputs.toList))
+        count += 1
+    }
+    count
+  }
+
   def newFields : List[String] = {
     val knownFields : Set[String] = 
       (responseFields ++ ignoreFields ++ inputFields).toSet

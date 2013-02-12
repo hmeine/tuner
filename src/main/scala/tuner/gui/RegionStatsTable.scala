@@ -20,7 +20,7 @@ class RegionStatsTable(project:Viewable)
   def updateStats = {
     project.responseFields.zipWithIndex.foreach {case (resp, row) =>
       update(row, 0, resp)
-      update(row, 1, project.region.numSamples)
+      update(row, 1, project.numSamplesInRegion)
       project.inputFields.zipWithIndex.foreach {case (fld, i) =>
         update(row, i+2, project.region.gradient(resp, fld))
       }
