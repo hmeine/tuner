@@ -436,6 +436,15 @@ class Viewable(config:ProjConfig, val path:String, val designSites:Table)
     count
   }
 
+  /**
+   * The number of sample points that are unclipped 
+   * by the current zoom level
+   */
+  def numUnclippedPoints : Int = {
+    val (active,_) = viewFilterDesignSites
+    active.numRows
+  }
+
   def newFields : List[String] = {
     val knownFields : Set[String] = 
       (responseFields ++ ignoreFields ++ inputFields).toSet
