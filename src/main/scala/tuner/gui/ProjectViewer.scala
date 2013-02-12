@@ -23,12 +23,12 @@ import tuner.gui.event.CandidateChanged
 import tuner.gui.event.HistoryAdd
 import tuner.gui.event.SliceChanged
 import tuner.gui.event.ViewChanged
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
 /**
  * The main interaction window in Tuner
  */
-class ProjectViewer(project:Viewable) extends Window(project) {
+class ProjectViewer(project:SimViewable) extends Window(project) {
   
   title = project.name
   val myMenu = new MainMenu(project) {

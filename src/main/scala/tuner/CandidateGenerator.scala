@@ -1,8 +1,8 @@
 package tuner
 
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
-class CandidateGenerator(project:Viewable) {
+class CandidateGenerator(project:SimViewable) {
   
   val candidates:NamedPointManager = new NamedPointManager("Candidate")
   var currentFilter:List[(String,Float)] = Nil

@@ -13,9 +13,9 @@ import tuner.gui.widgets.Axis
 import tuner.gui.widgets.ContinuousPlot
 import tuner.gui.widgets.Bars
 import tuner.gui.widgets.Scatterplot
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
-class ParetoPanel(project:Viewable)
+class ParetoPanel(project:SimViewable)
     extends P5Panel(Config.paretoDims._1, 
                     Config.paretoDims._2, 
                     P5Panel.Java2D) {

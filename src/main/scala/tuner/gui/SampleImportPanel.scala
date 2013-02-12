@@ -45,7 +45,7 @@ class SampleImportPanel(newSamples:((Int, Sampler.Method) => Unit))
     valueSelector.enabled = false
   } else {
     // No direct way to change the contents of a combobox
-    valueSelector.peer.setModel(ComboBox.newConstantModel(r))
+    //valueSelector.peer.setModel(ComboBox.newConstantModel(r))
     valueSelector.enabled = true
     valueSelector.selection.index = 0
   }

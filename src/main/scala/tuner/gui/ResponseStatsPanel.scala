@@ -8,9 +8,9 @@ import scala.swing.ScrollPane
 import scala.collection.immutable.SortedMap
 
 //import tuner.gui.event.ReadyToDraw
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
-class ResponseStatsPanel(project:Viewable) 
+class ResponseStatsPanel(project:SimViewable) 
     extends ScrollPane {
     //extends BoxPanel(Orientation.Vertical) {
   

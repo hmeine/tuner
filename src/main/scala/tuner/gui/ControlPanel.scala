@@ -7,14 +7,14 @@ import scala.swing.event.ValueChanged
 import java.awt.Dimension
 
 import tuner.Config
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
 /**
  * Panel containing Tuner application controls.
  * 
  * Displayed underneath main slice view 
  */
-class ControlPanel(project:Viewable) extends TabbedPane {
+class ControlPanel(project:SimViewable) extends TabbedPane {
   
   val dims = new Dimension(Int.MaxValue, Config.controlPanelHeight)
 

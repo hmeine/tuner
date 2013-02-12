@@ -110,9 +110,9 @@ object Project {
     } else if(gpDesignRows < designSites.numRows) {
       new BuildingGp(config, path, designSites)
     } else if(!designSites.fieldNames.diff(specifiedFields).isEmpty) {
-      new NewResponses(config, path, designSites.fieldNames)
+      new NewSimResponses(config, path, designSites.fieldNames)
     } else {
-      new Viewable(config, path, designSites)
+      new SimViewable(config, path, designSites)
     }
 
     proj
@@ -125,8 +125,10 @@ object Project {
 
 }
 
-sealed abstract class Project(config:ProjConfig) {
+trait Project {
   
+  val config:ProjConfig
+
   // Serializers to get the json parser to work
   implicit val formats = net.liftweb.json.DefaultFormats
   
@@ -138,12 +140,6 @@ sealed abstract class Project(config:ProjConfig) {
     val outFile = new FileWriter(jsonPath)
     outFile.write(pretty(render(decompose(config))))
     outFile.close
-    
-    // Try to save the sample tables
-    this match {
-      case s:Sampler => s.saveSampleTables(savePath)
-      case _         => 
-    }
   }
 
   /**
@@ -152,8 +148,6 @@ sealed abstract class Project(config:ProjConfig) {
   def next : Project
 
   val name = config.name
-
-  val scriptPath = config.scriptPath
 
   val inputs = new DimRanges(config.inputs.map {x =>
     (x.name -> (x.minRange, x.maxRange))
@@ -172,8 +166,22 @@ sealed abstract class Project(config:ProjConfig) {
 
 }
 
-abstract class InProgress(config:ProjConfig) 
-    extends Project(config) with Actor {
+trait SimProject extends Project {
+
+  override def save(savePath:String) : Unit = {
+    super.save(savePath)
+
+    // Try to save the sample tables
+    this match {
+      case s:Sampler => s.saveSampleTables(savePath)
+      case _         => 
+    }
+  }
+
+  val scriptPath = config.scriptPath
+}
+
+trait InProgress extends SimProject with Actor {
 
   var buildInBackground:Boolean
 
@@ -185,16 +193,19 @@ abstract class InProgress(config:ProjConfig)
   protected def publish(o:Any) = eventListeners.foreach {a => a ! o}
 }
 
-class NewProject(name:String, 
-                 basePath:String,
-                 scriptPath:String, 
-                 inputDims:List[(String,Float,Float)]) 
-    extends Project(ProjConfig(name, scriptPath, 
-                               Project.mapInputs(inputDims),
-                               Nil, Nil, Nil, false,
-                               ViewInfo.DefaultVisInfo,
-                               Region.DefaultRegionInfo,
-                               None)) with Sampler {
+class NewSimProject(name:String, 
+                    basePath:String,
+                    scriptPath:String, 
+                    inputDims:List[(String,Float,Float)]) 
+               extends SimProject with Sampler {
+                 
+                 
+  val config = ProjConfig(name, scriptPath, 
+                          Project.mapInputs(inputDims),
+                          Nil, Nil, Nil, false,
+                          ViewInfo.DefaultVisInfo,
+                          Region.DefaultRegionInfo,
+                          None)
 
   val path = Path.join(basePath, name)
 
@@ -222,9 +233,9 @@ class NewProject(name:String,
   }
 }
 
-class RunningSamples(config:ProjConfig, val path:String, 
+class RunningSamples(val config:ProjConfig, val path:String, 
                      val newSamples:Table, val designSites:Table) 
-    extends InProgress(config) with Saved {
+    extends InProgress with Saved {
   
   var buildInBackground:Boolean = config.buildInBackground
 
@@ -293,8 +304,8 @@ class RunningSamples(config:ProjConfig, val path:String,
   }
 }
 
-class BuildingGp(config:ProjConfig, val path:String, designSites:Table) 
-    extends InProgress(config) with Saved {
+class BuildingGp(val config:ProjConfig, val path:String, designSites:Table) 
+    extends InProgress with Saved {
   
   var buildInBackground:Boolean = config.buildInBackground
   
@@ -337,8 +348,8 @@ class BuildingGp(config:ProjConfig, val path:String, designSites:Table)
 
 }
 
-class NewResponses(config:ProjConfig, val path:String, allFields:List[String])
-    extends Project(config) with Saved {
+class NewSimResponses(val config:ProjConfig, val path:String, allFields:List[String])
+    extends SimProject with Saved {
   
   def statusString = "New Responses"
 
@@ -362,22 +373,17 @@ class NewResponses(config:ProjConfig, val path:String, allFields:List[String])
 
   def next = {
     save
-    Project.fromFile(path).asInstanceOf[Viewable]
+    Project.fromFile(path).asInstanceOf[SimViewable]
   }
 
 }
 
-class Viewable(config:ProjConfig, val path:String, val designSites:Table) 
-    extends Project(config) with Saved with Sampler {
+class SimViewable(val config:ProjConfig, val path:String, val designSites:Table) 
+    extends SimProject with Viewable with Saved with Sampler {
 
   import Project._
 
   val newSamples = new Table
-
-  // The visual controls
-  val viewInfo = ViewInfo.fromJson(this, config.currentVis)
-
-  var _region:Region = Region.fromJson(config.currentRegion, this)
 
   val gpModels:SortedMap[String,GpModel] = SortedMap[String,GpModel]() ++
     config.gpModels.map {gpConfig =>
@@ -419,11 +425,6 @@ class Viewable(config:ProjConfig, val path:String, val designSites:Table)
   def statusString = "Ok"
 
   def sampleRanges = _region.toRange
-
-  def region : Region = _region
-  def region_=(r:Region) = {
-    _region = r
-  }
 
   def numSamplesInRegion = {
     var count = 0

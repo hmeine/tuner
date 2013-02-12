@@ -7,7 +7,7 @@ import tuner.ViewInfo
 import tuner.geom.Rectangle
 import tuner.gui.event.HistoryAdd
 import tuner.gui.event.SliceChanged
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
 import scala.swing.Publisher
 
@@ -18,7 +18,7 @@ trait MainPlotPanel extends Publisher {
 
   type ColormapMap = Map[String,(SpecifiedColorMap,SpecifiedColorMap,SpecifiedColorMap)]
 
-  val project:Viewable
+  val project:SimViewable
 
   // The colormaps
   val resp1Colormaps = createColormaps(Config.response1ColorMap)

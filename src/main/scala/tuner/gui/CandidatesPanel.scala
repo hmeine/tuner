@@ -1,9 +1,9 @@
 package tuner.gui
 
 import tuner.gui.event.SliceChanged
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
-class CandidatesPanel(project:Viewable) 
+class CandidatesPanel(project:SimViewable) 
     extends TableSelectionPanel(project, project.candidates) {
   
   override def updateTable = {

@@ -96,7 +96,7 @@ object Tuner extends SimpleSwingApplication {
     }
 
     proj match {
-      case nr:NewResponses =>
+      case nr:NewSimResponses =>
         val respWindow = new ResponseSelector(nr)
         ProjectChooser.close
         respWindow.open
@@ -104,7 +104,7 @@ object Tuner extends SimpleSwingApplication {
         val waitWindow = new SamplingProgressBar(ip)
         ProjectChooser.close
         waitWindow.open
-      case v:Viewable => 
+      case v:SimViewable => 
         val projWindow = new ProjectViewer(v)
         ProjectChooser.close
         projWindow.open

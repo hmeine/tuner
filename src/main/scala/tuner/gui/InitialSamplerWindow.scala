@@ -10,13 +10,13 @@ import scala.swing.event.ButtonClicked
 import scala.swing.event.ValueChanged
 
 import tuner.Sampler
-import tuner.project.NewProject
+import tuner.project.NewSimProject
 import tuner.util.Path
 
 /**
  * The window for adding the initial set of samples.
  */
-class InitialSamplerWindow(project:NewProject, saveDir:String) 
+class InitialSamplerWindow(project:NewSimProject, saveDir:String) 
         extends Window(project) {
   
   title = "Select Samples"

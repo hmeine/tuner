@@ -14,7 +14,7 @@ import scala.swing.event.ButtonClicked
 import scala.swing.event.DialogClosing
 
 import tuner.Tuner
-import tuner.project.NewResponses
+import tuner.project.NewSimResponses
 
 object ResponseSelector {
   abstract class Response 
@@ -23,7 +23,7 @@ object ResponseSelector {
   case object Maximize extends Response
 }
 
-class ResponseSelector(project:NewResponses) extends Window(project) {
+class ResponseSelector(project:NewSimResponses) extends Window(project) {
   title = "Select Responses"
 
   val okButton = new Button("Ok")

@@ -10,9 +10,9 @@ import tuner.gui.util.AxisTicks
 import tuner.gui.util.Histogram
 import tuner.gui.widgets.Axis
 import tuner.gui.widgets.Bars
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
-class ResponseHistogramPanel(project:Viewable, responseField:String) 
+class ResponseHistogramPanel(project:SimViewable, responseField:String) 
     extends P5Panel(Config.respHistogramPanelDims._1, 
                     Config.respHistogramPanelDims._2, 
                     P5Panel.Java2D) {

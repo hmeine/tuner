@@ -18,7 +18,7 @@ import tuner.gui.opengl.Convolver
 import tuner.gui.opengl.Glsl
 import tuner.gui.opengl.Prosection
 import tuner.gui.util.Matrix4
-import tuner.project.Viewable
+import tuner.project.SimViewable
 
 object JoglMainPlotPanel {
   
@@ -32,7 +32,7 @@ object JoglMainPlotPanel {
 /**
  * The Hyperslice view of the GP model rendered using native OpenGL
  */
-class JoglMainPlotPanel(project:Viewable) 
+class JoglMainPlotPanel(project:SimViewable) 
     extends ProcessingMainPlotPanel(project) {
 
   val debugGl = true

@@ -19,7 +19,7 @@ import tuner.DimRanges
 import tuner.Tuner
 import tuner.gui.event.ControlTableRowAdded
 import tuner.gui.event.ControlTableRowChanged
-import tuner.project.NewProject
+import tuner.project.NewSimProject
 
 /**
  * The first window for setting up a new project.  Asks for things like
@@ -123,11 +123,11 @@ class NewProjectWindow extends Frame {
       this.pack
   }
 
-  def createProject : NewProject = {
+  def createProject : NewSimProject = {
     val name = projectNameField.text
     val scriptPath = scriptChooser.path
     val inputs = inputDims
-    new NewProject(name, locationChooser.path, scriptPath, inputs)
+    new NewSimProject(name, locationChooser.path, scriptPath, inputs)
   }
 
   def inputDims : List[(String,Float,Float)] = {

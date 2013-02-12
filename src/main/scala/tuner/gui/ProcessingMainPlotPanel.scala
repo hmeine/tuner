@@ -17,7 +17,7 @@ import tuner.gui.widgets.Axis
 import tuner.gui.widgets.Colorbar
 import tuner.gui.widgets.ContinuousPlot
 import tuner.gui.widgets.Widgets
-import tuner.project.Viewable
+import tuner.project.SimViewable
 import tuner.util.ColorLib
 
 import scala.collection.mutable.Queue
@@ -29,7 +29,7 @@ import processing.core.PConstants
 /**
  * A Hyperslice matrix implemented using the Processing API
  */
-class ProcessingMainPlotPanel(val project:Viewable) 
+class ProcessingMainPlotPanel(val project:SimViewable) 
     extends P5Panel(Config.mainPlotDims._1, 
                     Config.mainPlotDims._2, 
                     P5Panel.OpenGL) 
