@@ -12,13 +12,13 @@ import scala.swing.event.SelectionChanged
 import scala.swing.event.ValueChanged
 
 import tuner.Config
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
 /**
  * Contains the controls that let the user select the focus point,
  * zoom level, and which response values to show.
  */
-class PlotControlsPanel(project:SimViewable) 
+class PlotControlsPanel(project:Viewable) 
     extends BoxPanel(Orientation.Vertical) {
   
   // Create dim sliders for each input dimension

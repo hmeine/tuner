@@ -1,8 +1,8 @@
 package tuner.gui
 
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
-class HistoryPanel(project:SimViewable) 
+class HistoryPanel(project:Viewable) 
     extends TableSelectionPanel(project, project.history) {
   
 }

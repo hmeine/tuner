@@ -2,17 +2,17 @@ package tuner.gui
 
 import scala.swing.Table
 
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
 object RegionStatsTable {
-  def columnNames(project:SimViewable) = {
+  def columnNames(project:Viewable) = {
     List("","Samples") ++ (project.inputFields.map {fld =>
       fld + " Gradient"
     }).toSeq
   }
 }
 
-class RegionStatsTable(project:SimViewable) 
+class RegionStatsTable(project:Viewable) 
     extends Table(Array.fill(project.responseFields.length)(
                     Array.fill(2+project.inputFields.length)("":Any)
                   ), RegionStatsTable.columnNames(project)) {

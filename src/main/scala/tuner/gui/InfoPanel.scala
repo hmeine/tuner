@@ -10,12 +10,12 @@ import scala.swing.Swing
 import scala.swing.Table
 
 import tuner.Config
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
 import java.awt.Dimension
 import javax.swing.table.AbstractTableModel
 
-class InfoPanel(project:SimViewable) extends BoxPanel(Orientation.Vertical) {
+class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
 
   val infoTable = {
     val columnNames = project.inputFields ++ 

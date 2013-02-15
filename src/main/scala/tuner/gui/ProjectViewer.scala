@@ -23,23 +23,30 @@ import tuner.gui.event.CandidateChanged
 import tuner.gui.event.HistoryAdd
 import tuner.gui.event.SliceChanged
 import tuner.gui.event.ViewChanged
+import tuner.project.Sampler
 import tuner.project.SimViewable
+import tuner.project.Viewable
 
 /**
  * The main interaction window in Tuner
  */
-class ProjectViewer(project:SimViewable) extends Window(project) {
+class ProjectViewer(project:Viewable) extends Window(project) {
   
   title = project.name
   val myMenu = new MainMenu(project) {
-    importSamples.action = MainMenu.ImportSamplesAction(project)
+    project match {
+      case sp:Sampler => 
+        importSamples.action = MainMenu.ImportSamplesAction(sp)
+    }
     enabled = true
   }
   menuBar = myMenu
 
   // only use the native opengl version if the system can handle it
-  val mainPlotPanel = new JoglMainPlotPanel(project)
-  //val mainPlotPanel = new ProcessingMainPlotPanel(project)
+  val mainPlotPanel = project match {
+    case sv:SimViewable => new JoglMainPlotPanel(sv)
+    case _              => new ProcessingMainPlotPanel(project)
+  }
 
   val visControlPanel = new VisControlPanel(project.viewInfo)
 

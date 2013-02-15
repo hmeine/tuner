@@ -10,9 +10,9 @@ import javax.swing.table.AbstractTableModel
 
 import tuner.NamedPointManager
 import tuner.gui.event.SliceChanged
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
-class TableSelectionPanel(project:SimViewable, points:NamedPointManager) 
+class TableSelectionPanel(project:Viewable, points:NamedPointManager) 
     extends BoxPanel(Orientation.Vertical) {
   
   val columnNames = "Name" :: project.inputFields ++
