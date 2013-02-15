@@ -7,7 +7,7 @@ import tuner.ViewInfo
 import tuner.geom.Rectangle
 import tuner.gui.event.HistoryAdd
 import tuner.gui.event.SliceChanged
-import tuner.project.SimViewable
+import tuner.project.Viewable
 
 import scala.swing.Publisher
 
@@ -18,7 +18,7 @@ trait MainPlotPanel extends Publisher {
 
   type ColormapMap = Map[String,(SpecifiedColorMap,SpecifiedColorMap,SpecifiedColorMap)]
 
-  val project:SimViewable
+  val project:Viewable
 
   // The colormaps
   val resp1Colormaps = createColormaps(Config.response1ColorMap)
@@ -55,18 +55,19 @@ trait MainPlotPanel extends Publisher {
 
   protected def createColormaps(respColormap:ColorMap) : ColormapMap = {
     project.responses.map {case (fld, minimize) =>
-      val model = project.gpModels(fld)
       val valCm = new SpecifiedColorMap(respColormap,
-                                        model.funcMin, 
-                                        model.funcMax,
+                                        project.minValue(fld),
+                                        project.maxValue(fld),
                                         minimize)
       val errCm = new SpecifiedColorMap(Config.errorColorMap,
-                                        0f, math.sqrt(model.sig2).toFloat,
+                                        project.minUncertainty(fld),
+                                        project.maxUncertainty(fld),
                                         false)
       // TODO: fix the max gain calculation!
-      val maxGain = model.maxGain(project.inputs) / 4
-      val gainCm = new SpecifiedColorMap(Config.gainColorMap, 0f, 
-                                         maxGain, false)
+      val gainCm = new SpecifiedColorMap(Config.gainColorMap, 
+                                         project.minExpectedGain(fld),
+                                         project.maxExpectedGain(fld),
+                                         false)
       (fld, (valCm, errCm, gainCm))
     } toMap
   }
