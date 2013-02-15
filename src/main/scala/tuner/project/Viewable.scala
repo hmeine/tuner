@@ -1,6 +1,7 @@
 package tuner.project
 
 import tuner.Config
+import tuner.HistoryManager
 import tuner.Region
 import tuner.ViewInfo
 
@@ -23,5 +24,10 @@ trait Viewable extends Project {
   def expectedGain(point:List[(String,Float)]) : Map[String,Float]
   def expectedGain(point:List[(String,Float)], response:String) : Float
 
+
+  val history:HistoryManager = config.history match {
+    case Some(hc) => HistoryManager.fromJson(hc)
+    case None     => new HistoryManager
+  }
 }
 

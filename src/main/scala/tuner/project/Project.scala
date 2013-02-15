@@ -19,7 +19,6 @@ import tuner.ConsoleLine
 import tuner.DimRanges
 import tuner.GpModel
 import tuner.GpSpecification
-import tuner.HistoryManager
 import tuner.HistorySpecification
 import tuner.PreviewImages
 import tuner.Progress
@@ -389,11 +388,6 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
     config.gpModels.map {gpConfig =>
       (gpConfig.responseDim, GpModel.fromJson(gpConfig))
     }
-
-  val history:HistoryManager = config.history match {
-    case Some(hc) => HistoryManager.fromJson(hc)
-    case None     => new HistoryManager
-  }
 
   val candidateGenerator = new CandidateGenerator(this)
 
