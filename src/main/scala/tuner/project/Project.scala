@@ -526,6 +526,19 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
     gpModels(response).calcExpectedGain(sample._1, sample._2).toFloat
   }
 
+  def minValue(response:String) = gpModels(response).funcMin
+  def maxValue(response:String) = gpModels(response).funcMax
+
+  def minUncertainty(response:String) = 0f
+  def maxUncertainty(response:String) = {
+    math.sqrt(gpModels(response).sig2).toFloat
+  }
+
+  def minExpectedGain(response:String) = 0f
+  def maxExpectedGain(response:String) = {
+    gpModels(response).maxGain(inputs) / 4
+  }
+
   def randomSample2dResponse(resp1Dim:(String,(Float,Float)), 
                              resp2Dim:(String,(Float,Float))) = {
 

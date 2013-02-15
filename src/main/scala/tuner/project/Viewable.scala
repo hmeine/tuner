@@ -25,6 +25,14 @@ trait Viewable extends Project {
   def expectedGain(point:List[(String,Float)]) : Map[String,Float]
   def expectedGain(point:List[(String,Float)], response:String) : Float
 
+  def minValue(response:String) : Float
+  def maxValue(response:String) : Float
+
+  def minUncertainty(response:String) : Float
+  def maxUncertainty(response:String) : Float
+
+  def minExpectedGain(response:String) : Float
+  def maxExpectedGain(response:String) : Float
 
   def viewValueFunction : (List[(String,Float)],String)=>Float = 
     viewInfo.currentMetric match {
