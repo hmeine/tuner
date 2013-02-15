@@ -20,6 +20,8 @@ trait Viewable extends Project {
   def value(point:List[(String,Float)], response:String) : Float
   def uncertainty(point:List[(String,Float)]) : Map[String,Float]
   def uncertainty(point:List[(String,Float)], response:String) : Float
+  def expectedGain(point:List[(String,Float)]) : Map[String,Float]
+  def expectedGain(point:List[(String,Float)], response:String) : Float
 
 }
 
