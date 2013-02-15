@@ -52,7 +52,6 @@ class LocalPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
 
   listenTo(shapeSelector.selection)
   listenTo(sampleButton)
-  listenTo(sampleButton)
 
   reactions += {
     case SelectionChanged(`shapeSelector`) =>
@@ -86,6 +85,9 @@ class LocalPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
         border = Swing.TitledBorder(border, "Radius")
       }
     }
+
+    // sampling only makes sense for the SimProject
+    /*
     contents += new BoxPanel(Orientation.Vertical) {
       contents += Swing.VGlue
       contents += sampleButton
@@ -93,6 +95,7 @@ class LocalPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
 
       border = Swing.TitledBorder(border, "Sampling")
     }
+    */
   }
   //contents += Swing.VGlue
   contents += new ScrollPane {

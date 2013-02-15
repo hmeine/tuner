@@ -35,6 +35,7 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
   val sampleImagePanel = new PImagePanel(Config.sampleImageSize, 
                                          Config.sampleImageSize)
 
+  /*
   val imagePanel = project.previewImages.map {pi =>
     new BoxPanel(Orientation.Horizontal) {
       maximumSize = new Dimension(Int.MaxValue, 150)
@@ -42,10 +43,6 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
     
       contents += Swing.HGlue
       contents += new BoxPanel(Orientation.Vertical) {
-        /*
-        layout(sampleImagePanel) = BorderPanel.Position.Center
-        layout(new Label("Closest Sample")) = BorderPanel.Position.South
-        */
         contents += Swing.VGlue
         contents += sampleImagePanel
         contents += new Label("Closest Sample")
@@ -54,6 +51,7 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
       contents += Swing.HGlue
     }
   }
+  */
 
   contents += new ScrollPane {
     contents = infoTable
@@ -63,41 +61,45 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
   }
   contents += Swing.VGlue
 
+  /*
   imagePanel.foreach {ip =>
     contents += ip
     contents += Swing.VGlue
   }
+  */
 
   // Set up the initial table
   updateView
 
   def updateView = {
     val slice = project.viewInfo.currentSlice
-    val closestSample = project.closestSample(slice.toList).toMap
-    val estimates = project.estimatePoint(slice.toList)
+    //val closestSample = project.closestSample(slice.toList).toMap
+    //val estimates = project.estimatePoint(slice.toList)
 
     // Update the independent dimensions first
     project.inputFields.zipWithIndex.foreach {case (fld, i) =>
       infoTable.update(0, i+1, slice.getOrElse(fld, ""))
-      infoTable.update(1, i+1, closestSample.getOrElse(fld, ""))
+      //infoTable.update(1, i+1, closestSample.getOrElse(fld, ""))
     }
 
     // Also update the response fields
     project.responseFields.zipWithIndex.foreach {case (fld, i) =>
       val col = 1 + project.inputFields.length + 3 * i
-      val (est, err, gain) = estimates.getOrElse(fld, ("","",""))
-      infoTable.update(0, col, est)
-      infoTable.update(0, col+1, err)
-      infoTable.update(0, col+2, gain)
-      infoTable.update(1, col, closestSample.getOrElse(fld, ""))
+      //val (est, err, gain) = estimates.getOrElse(fld, ("","",""))
+      //infoTable.update(0, col, est)
+      //infoTable.update(0, col+1, err)
+      //infoTable.update(0, col+2, gain)
+      //infoTable.update(1, col, closestSample.getOrElse(fld, ""))
     }
 
     // Update the closest image
+    /*
     project.previewImages.foreach {pi =>
       val img = pi.image(sampleImagePanel.applet, 
                          closestSample("rowNum").toInt)
       sampleImagePanel.image = img
     }
+    */
   }
 
 }

@@ -35,13 +35,14 @@ class TableSelectionPanel(project:Viewable, points:NamedPointManager)
       } else {
         val adjCol = col - project.inputFields.length - 1
         val (fldNum, typeCode) = (adjCol / 3, adjCol % 3)
-        val estimates = project.estimatePoint(itemPoint)
+        //val estimates = project.estimatePoint(itemPoint)
         val estField = project.responseFields(fldNum)
-        typeCode match {
-          case 0 => estimates(estField)._1.toString
-          case 1 => estimates(estField)._2.toString
-          case 2 => estimates(estField)._3.toString
-        }
+        //typeCode match {
+          //case 0 => estimates(estField)._1.toString
+          //case 1 => estimates(estField)._2.toString
+          //case 2 => estimates(estField)._3.toString
+        //}
+        "0"
       }
     }
   }

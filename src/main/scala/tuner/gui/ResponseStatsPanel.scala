@@ -14,11 +14,10 @@ class ResponseStatsPanel(project:Viewable)
     extends ScrollPane {
     //extends BoxPanel(Orientation.Vertical) {
   
+  /*
   val histogramPanels:SortedMap[String,ResponseHistogramPanel] = {
-    val gpm = project.gpModels
     SortedMap[String,ResponseHistogramPanel]() ++
       project.responseFields.map {fld =>
-        val model = gpm(fld)
         val panel = new ResponseHistogramPanel(project, fld)
         listenTo(panel)
         (fld -> panel)
@@ -45,6 +44,7 @@ class ResponseStatsPanel(project:Viewable)
       }
     }
   }
+  */
 
   /*
   reactions += {

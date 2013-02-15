@@ -54,12 +54,14 @@ class ProjectViewer(project:Viewable) extends Window(project) {
   // Need this reference for later
   val plotControls = controlPanel.controlsTab
 
+  /*
   val paretoPanel = new ParetoPanel(project) {
     border = Swing.TitledBorder(border, "Pareto")
     minimumSize = new java.awt.Dimension(Config.paretoDims._1, 
                                          Config.paretoDims._2)
     maximumSize = preferredSize
   }
+  */
 
   contents = new TablePanel(List(305,TablePanel.Size.Fill), 
                             List(TablePanel.Size.Fill)) {
@@ -69,7 +71,7 @@ class ProjectViewer(project:Viewable) extends Window(project) {
     }
   
     val leftPanel = new BoxPanel(Orientation.Vertical) {
-      contents += paretoPanel
+      //contents += paretoPanel
       contents += visControlPanel
       contents += histogramPanel
     }
@@ -89,10 +91,10 @@ class ProjectViewer(project:Viewable) extends Window(project) {
 
   listenTo(mainPlotPanel)
   listenTo(visControlPanel)
-  listenTo(paretoPanel)
+  //listenTo(paretoPanel)
   listenTo(controlPanel.controlsTab)
   listenTo(controlPanel.historyTab)
-  listenTo(controlPanel.candidatesTab)
+  //listenTo(controlPanel.candidatesTab)
   listenTo(controlPanel.localTab)
   listenTo(plotControls)
   listenTo(myMenu.importSamples)
@@ -101,9 +103,11 @@ class ProjectViewer(project:Viewable) extends Window(project) {
   val localTab = controlPanel.localTab
   val importSamplesItem = myMenu.importSamples
   reactions += {
+    /*
     case CandidateChanged(_, newCand) =>
       project.updateCandidates(newCand)
       controlPanel.candidatesTab.updateTable
+    */
     case SliceChanged(_, sliceInfo) => 
       sliceInfo.foreach {case (fld, v) =>
         controlPanel.controlsTab.sliceSliders.get(fld).foreach {slider =>
@@ -126,6 +130,7 @@ class ProjectViewer(project:Viewable) extends Window(project) {
   }
 
   private def openSamplerDialog = {
+  /*
     val samplerDialog = new SamplerDialog(project, this)
     listenTo(samplerDialog)
     reactions += {
@@ -138,6 +143,7 @@ class ProjectViewer(project:Viewable) extends Window(project) {
       }
     }
     samplerDialog.open
+  */
   }
 
 }

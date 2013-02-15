@@ -144,8 +144,10 @@ class ProcessingMainPlotPanel(val project:Viewable)
 
   protected def drawResponses = {
     // Find the closest sample
+    /*
     val closestSample = project.closestSample(
       project.viewInfo.currentSlice.toList).toMap
+    */
 
     // Loop through all field combinations to see what we need to draw
     project.inputFields.foreach {xFld =>
@@ -157,7 +159,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
           project.viewInfo.response1View.foreach {r1 => 
             val startTime = System.currentTimeMillis
             drawResponse(xRange, yRange, r1)
-            drawResponseWidgets(xRange, yRange, closestSample)
+            //drawResponseWidgets(xRange, yRange, closestSample)
             val endTime = System.currentTimeMillis
             //println("r1 draw time: " + (endTime-startTime) + "ms")
           }
@@ -165,7 +167,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
           project.viewInfo.response2View.foreach {r2 =>
             val startTime = System.currentTimeMillis
             drawResponse(xRange, yRange, r2)
-            drawResponseWidgets(xRange, yRange, closestSample)
+            //drawResponseWidgets(xRange, yRange, closestSample)
             val endTime = System.currentTimeMillis
             //println("r2 draw time: " + (endTime-startTime) + "ms")
           }
