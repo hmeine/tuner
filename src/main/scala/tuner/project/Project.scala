@@ -17,9 +17,11 @@ import tuner.CandidateGenerator
 import tuner.Config
 import tuner.ConsoleLine
 import tuner.DimRanges
+import tuner.FunctionCompiler
 import tuner.GpModel
 import tuner.GpSpecification
 import tuner.HistorySpecification
+import tuner.InterpretedFunction
 import tuner.PreviewImages
 import tuner.Progress
 import tuner.ProgressComplete
@@ -38,19 +40,28 @@ import tuner.util.Density2D
 import tuner.util.Path
 
 // Internal config for matching with the json stuff
+sealed abstract trait ProjInfo
 case class InputSpecification(name:String, minRange:Float, maxRange:Float)
 case class OutputSpecification(name:String, minimize:Boolean)
+case class SimProjInfo(
+  scriptPath:String,
+  var gpModels:List[GpSpecification],
+  buildInBackground:Boolean
+) extends ProjInfo
+case class FuncProjInfo(
+  functionSrc:String,
+  minValue:Float,
+  maxValue:Float
+) extends ProjInfo
 case class ProjConfig(
   name:String,
-  scriptPath:String,
   inputs:List[InputSpecification],
   var outputs:List[OutputSpecification],
   var ignoreFields:List[String],
-  var gpModels:List[GpSpecification],
-  buildInBackground:Boolean,
   var currentVis:VisInfo,
   currentRegion:RegionSpecification,
-  history:Option[HistorySpecification]
+  history:Option[HistorySpecification],
+  projInfo:ProjInfo
 )
 
 object Project {
@@ -93,35 +104,41 @@ object Project {
       case _:java.io.FileNotFoundException => new Table
     }
 
-    // Figure out how many rows we've built the models on
-    val gpDesignRows = config.gpModels.map(_.designMatrix.length) match {
-      case Nil => 0
-      case x   => x.min
+    config.projInfo match {
+      case SimProjInfo(scriptPath, gpModels, buildInBackground) =>
+        // Figure out how many rows we've built the models on
+        val gpDesignRows = gpModels.map(_.designMatrix.length) match {
+          case Nil => 0
+          case x   => x.min
+        }
+
+        val specifiedFields:List[String] = 
+          config.inputs.map(_.name) ++ 
+          config.outputs.map(_.name) ++ 
+          config.ignoreFields
+    
+        if(samples.numRows > 0) {
+          new RunningSamples(config, path, samples, designSites)
+        } else if(gpDesignRows < designSites.numRows) {
+          new BuildingGp(config, path, designSites)
+        } else if(!designSites.fieldNames.diff(specifiedFields).isEmpty) {
+          new NewSimResponses(config, path, designSites.fieldNames)
+        } else {
+          new SimViewable(config, path, designSites)
+        }
+      case FuncProjInfo(functionSrc, mnv, mxv) =>
+        val func = FunctionCompiler.compile(functionSrc)
+        new FunctionProject(config, path, func) {
+          def minValue(response:String) : Float = mnv
+          def maxValue(response:String) : Float = mxv
+        }
     }
-
-    val specifiedFields:List[String] = 
-      config.inputs.map(_.name) ++ 
-      config.outputs.map(_.name) ++ 
-      config.ignoreFields
-
-    val proj = if(samples.numRows > 0) {
-      new RunningSamples(config, path, samples, designSites)
-    } else if(gpDesignRows < designSites.numRows) {
-      new BuildingGp(config, path, designSites)
-    } else if(!designSites.fieldNames.diff(specifiedFields).isEmpty) {
-      new NewSimResponses(config, path, designSites.fieldNames)
-    } else {
-      new SimViewable(config, path, designSites)
-    }
-
-    proj
   }
 
   def mapInputs(inputs:List[(String,Float,Float)]) = 
     inputs.map {case (fld, mn, mx) =>
       InputSpecification(fld, mn, mx)
     }
-
 }
 
 trait Project {
@@ -177,7 +194,7 @@ trait SimProject extends Project {
     }
   }
 
-  val scriptPath = config.scriptPath
+  val scriptPath = config.projInfo.asInstanceOf[SimProjInfo].scriptPath
 }
 
 trait InProgress extends SimProject with Actor {
@@ -199,12 +216,13 @@ class NewSimProject(name:String,
                extends SimProject with Sampler {
                  
                  
-  val config = ProjConfig(name, scriptPath, 
+  val config = ProjConfig(name, 
                           Project.mapInputs(inputDims),
-                          Nil, Nil, Nil, false,
+                          Nil, Nil, 
                           ViewInfo.DefaultVisInfo,
                           Region.DefaultRegionInfo,
-                          None)
+                          None,
+                          SimProjInfo(scriptPath, Nil, false))
 
   val path = Path.join(basePath, name)
 
@@ -236,7 +254,8 @@ class RunningSamples(val config:ProjConfig, val path:String,
                      val newSamples:Table, val designSites:Table) 
     extends InProgress with Saved {
   
-  var buildInBackground:Boolean = config.buildInBackground
+  var buildInBackground:Boolean = 
+    config.projInfo.asInstanceOf[SimProjInfo].buildInBackground
 
   // See if we should start running some samples
   var sampleRunner:Option[SampleRunner] = None 
@@ -306,7 +325,8 @@ class RunningSamples(val config:ProjConfig, val path:String,
 class BuildingGp(val config:ProjConfig, val path:String, designSites:Table) 
     extends InProgress with Saved {
   
-  var buildInBackground:Boolean = config.buildInBackground
+  var buildInBackground:Boolean = 
+    config.projInfo.asInstanceOf[SimProjInfo].buildInBackground
   
   //val gps = responseFields.map(fld => (fld, loadGpModel(gp, fld))).toMap
 
@@ -326,7 +346,8 @@ class BuildingGp(val config:ProjConfig, val path:String, designSites:Table)
       println("building model for " + fld)
       (fld, gp.buildModel(inputFields, fld, Config.errorField))
     }).toMap
-    config.gpModels = newModels.values.map(_.toJson).toList
+    config.projInfo.asInstanceOf[SimProjInfo].gpModels = 
+      newModels.values.map(_.toJson).toList
     save()
     publish(ProgressComplete)
   }
@@ -385,7 +406,7 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
   val newSamples = new Table
 
   val gpModels:SortedMap[String,GpModel] = SortedMap[String,GpModel]() ++
-    config.gpModels.map {gpConfig =>
+    config.projInfo.asInstanceOf[SimProjInfo].gpModels.map {gpConfig =>
       (gpConfig.responseDim, GpModel.fromJson(gpConfig))
     }
 
@@ -415,8 +436,6 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
     save()
     Project.fromFile(path).asInstanceOf[RunningSamples]
   }
-
-  def statusString = "Ok"
 
   def sampleRanges = _region.toRange
 
@@ -586,6 +605,44 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
       None
     }
   }
+
+}
+
+abstract class FunctionProject(val config:ProjConfig, val path:String, 
+                      function:InterpretedFunction)
+    extends Project with Viewable with Saved {
+
+  def value(point:List[(String,Float)]) : Map[String,Float] = 
+    Map("y" -> value(point, "y"))
+
+  def value(point:List[(String,Float)], response:String) : Float = 
+    function(point.unzip._2)
+
+  def uncertainty(point:List[(String,Float)]) : Map[String,Float] = 
+    Map("y" -> uncertainty(point, "y"))
+
+  def uncertainty(point:List[(String,Float)], response:String) : Float = 0f
+
+  def expectedGain(point:List[(String,Float)]) : Map[String,Float] = 
+    Map("y" -> uncertainty(point, "y"))
+
+  def expectedGain(point:List[(String,Float)], response:String) : Float = 0f
+
+  def minUncertainty(response:String) : Float = 0f
+  def maxUncertainty(response:String) : Float = 0f
+
+  def minExpectedGain(response:String) : Float = 0f
+  def maxExpectedGain(response:String) : Float = 0f
+
+  override def save(savePath:String) : Unit = {
+    // Update the view info
+    config.currentVis = viewInfo.toJson
+
+    super.save(savePath)
+  }
+
+  // Next does nothing ... NOTHING!
+  def next = this
 
 }
 

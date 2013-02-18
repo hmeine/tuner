@@ -11,6 +11,8 @@ trait Viewable extends Project {
   // The visual controls
   val viewInfo = ViewInfo.fromJson(this, config.currentVis)
 
+  def statusString = "Ok"
+  
   var _region:Region = Region.fromJson(config.currentRegion, this)
 
   def region : Region = _region
