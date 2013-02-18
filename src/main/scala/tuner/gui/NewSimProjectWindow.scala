@@ -25,9 +25,9 @@ import tuner.project.NewSimProject
  * The first window for setting up a new project.  Asks for things like
  * the project name, sampling script, and input parameter information.
  */
-class NewProjectWindow extends Frame {
+class NewSimProjectWindow extends Frame {
 
-  title = "New Project"
+  title = "New Sim Project"
 
   menuBar = new MainMenu
 

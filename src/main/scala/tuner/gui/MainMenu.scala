@@ -96,7 +96,7 @@ class MainMenu(project:Option[Project]) extends MenuBar {
   contents += new Menu("File") {
     contents += new MenuItem(new Action("New Project…") {
       accelerator = Some(CommandKey('N'))
-      override def apply = Tuner.startNewProject
+      override def apply = Tuner.startNewSimProject
     })
 
     contents += new Separator

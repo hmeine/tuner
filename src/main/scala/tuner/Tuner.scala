@@ -12,7 +12,7 @@ import java.io.File
 
 import tuner.error.MissingJriException
 import tuner.error.ProjectLoadException
-import tuner.gui.NewProjectWindow
+import tuner.gui.NewSimProjectWindow
 import tuner.gui.ProjectChooser
 import tuner.gui.ProjectViewer
 import tuner.gui.ResponseSelector
@@ -71,9 +71,9 @@ object Tuner extends SimpleSwingApplication {
     }
   }
 
-  def startNewProject = {
+  def startNewSimProject = {
     println("Starting new project")
-    val window = new NewProjectWindow
+    val window = new NewSimProjectWindow
     window.open
   }
 
