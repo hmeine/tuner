@@ -220,8 +220,8 @@ class NewSimProject(name:String,
   val config = ProjConfig(name, 
                           Project.mapInputs(inputDims),
                           Nil, Nil, 
-                          ViewInfo.DefaultVisInfo,
-                          Region.DefaultRegionInfo,
+                          ViewInfo.Default,
+                          Region.Default,
                           None,
                           SimProjInfo(scriptPath, Nil, false))
 
