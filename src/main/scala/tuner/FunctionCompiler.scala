@@ -16,12 +16,11 @@ trait InterpretedFunction {
   val function:Function1[Float,_]
 
   private def applyInternal(f:Function1[Float,_], args:List[Float]) : Float = 
-    f match {
-      // This method is driven by the remaining args in f, not in args!
-      case lf:Function1[Float,Float] => 
-        lf(args.head)
-      case f1:Function1[Float,Function1[Float,_]] => 
-        applyInternal(f1(args.head), args.tail)
+    // This method is driven by the remaining args, not 
+    // the characteristics of f!
+    args match {
+      case hd :: Nil => f(hd).asInstanceOf[Float]
+      case hd :: tl  => applyInternal(f(hd).asInstanceOf[Function1[Float,_]], tl)
   }
 }
 
