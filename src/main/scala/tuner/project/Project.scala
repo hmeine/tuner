@@ -67,7 +67,8 @@ case class ProjConfig(
 object Project {
 
   // Serializers to get the json parser to work
-  implicit val formats = net.liftweb.json.DefaultFormats
+  implicit val formats = net.liftweb.json.DefaultFormats.withHints(
+    ShortTypeHints(List(classOf[SimProjInfo], classOf[FuncProjInfo])))
 
   def recent : Array[Project] = {
     Config.recentProjects flatMap {rp =>
