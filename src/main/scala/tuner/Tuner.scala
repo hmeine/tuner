@@ -112,7 +112,7 @@ object Tuner extends SimpleSwingApplication {
         val waitWindow = new SamplingProgressBar(ip)
         ProjectChooser.close
         waitWindow.open
-      case v:SimViewable => 
+      case v:Viewable => 
         val projWindow = new ProjectViewer(v)
         ProjectChooser.close
         projWindow.open
