@@ -37,6 +37,7 @@ class ProjectViewer(project:Viewable) extends Window(project) {
     project match {
       case sp:Sampler => 
         importSamples.action = MainMenu.ImportSamplesAction(sp)
+      case _ =>
     }
     enabled = true
   }
