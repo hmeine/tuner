@@ -85,7 +85,7 @@ object ProjectChooser extends Frame {
 
   val importSamplesItem = myMenu.importSamples
   reactions += {
-    case ButtonClicked(`newProjectButton`) => Tuner.startNewSimProject
+    case ButtonClicked(`newProjectButton`) => Tuner.startNewFunctionProject
     case ButtonClicked(`openOtherButton`) => openOtherProject
     case ButtonClicked(`openButton`) => openSelectedProject
     case ButtonClicked(`importSamplesItem`) =>

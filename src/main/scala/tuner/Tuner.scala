@@ -12,6 +12,7 @@ import java.io.File
 
 import tuner.error.MissingJriException
 import tuner.error.ProjectLoadException
+import tuner.gui.NewFunctionProjectWindow
 import tuner.gui.NewSimProjectWindow
 import tuner.gui.ProjectChooser
 import tuner.gui.ProjectViewer
@@ -76,6 +77,13 @@ object Tuner extends SimpleSwingApplication {
     val window = new NewSimProjectWindow
     window.open
   }
+
+  def startNewFunctionProject = {
+    println("Starting new project")
+    val window = new NewFunctionProjectWindow
+    window.open
+  }
+
 
   def openProject() : Unit = {
     val fc = new FileChooser {
