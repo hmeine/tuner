@@ -21,6 +21,7 @@ import tuner.gui.event.ControlTableRowAdded
 import tuner.project.FunctionProject
 import tuner.project.FuncProjInfo
 import tuner.project.InputSpecification
+import tuner.project.OutputSpecification
 import tuner.project.ProjConfig
 
 class NewFunctionProjectWindow extends Frame {
@@ -160,7 +161,7 @@ class NewFunctionProjectWindow extends Frame {
     val projConfig = ProjConfig(
       projectNameField.text,
       inputDims map {case (fld,mn,mx) => InputSpecification(fld, mn, mx)},
-      Nil,
+      List(OutputSpecification("y", false)),
       Nil,
       ViewInfo.Default,
       Region.Default,
