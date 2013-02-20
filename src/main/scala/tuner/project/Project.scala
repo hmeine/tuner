@@ -147,7 +147,9 @@ trait Project {
   val config:ProjConfig
 
   // Serializers to get the json parser to work
-  implicit val formats = net.liftweb.json.DefaultFormats
+  implicit val formats = net.liftweb.json.DefaultFormats.withHints(
+    ShortTypeHints(List(classOf[SimProjInfo], classOf[FuncProjInfo]))
+  )
   
   def save(savePath:String) : Unit = {
     // Ensure that the project directory exists
