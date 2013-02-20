@@ -617,7 +617,7 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
     Map("y" -> value(point, "y"))
 
   def value(point:List[(String,Float)], response:String) : Float = 
-    function(point.unzip._2)
+    function(orderedPoint(point))
 
   def uncertainty(point:List[(String,Float)]) : Map[String,Float] = 
     Map("y" -> uncertainty(point, "y"))
@@ -645,5 +645,10 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
   // Next does nothing ... NOTHING!
   def next = this
 
+
+  private def orderedPoint(point:List[(String,Float)]) : List[Float] = {
+    val pt = point.toMap
+    inputFields map {fld => pt(fld)}
+  }
 }
 
