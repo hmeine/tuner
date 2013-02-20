@@ -74,7 +74,6 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
   def updateView = {
     val slice = project.viewInfo.currentSlice
     //val closestSample = project.closestSample(slice.toList).toMap
-    //val estimates = project.estimatePoint(slice.toList)
 
     // Update the independent dimensions first
     project.inputFields.zipWithIndex.foreach {case (fld, i) =>
@@ -86,9 +85,9 @@ class InfoPanel(project:Viewable) extends BoxPanel(Orientation.Vertical) {
     project.responseFields.zipWithIndex.foreach {case (fld, i) =>
       val col = 1 + project.inputFields.length + 3 * i
       //val (est, err, gain) = estimates.getOrElse(fld, ("","",""))
-      //infoTable.update(0, col, est)
-      //infoTable.update(0, col+1, err)
-      //infoTable.update(0, col+2, gain)
+      infoTable.update(0, col, project.value(slice.toList, fld))
+      infoTable.update(0, col+1, project.uncertainty(slice.toList, fld))
+      infoTable.update(0, col+2, project.expectedGain(slice.toList, fld))
       //infoTable.update(1, col, closestSample.getOrElse(fld, ""))
     }
 
