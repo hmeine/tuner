@@ -160,6 +160,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
             val startTime = System.currentTimeMillis
             drawResponse(xRange, yRange, r1)
             //drawResponseWidgets(xRange, yRange, closestSample)
+            drawResponseWidgets(xRange, yRange)
             val endTime = System.currentTimeMillis
             //println("r1 draw time: " + (endTime-startTime) + "ms")
           }
@@ -168,6 +169,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
             val startTime = System.currentTimeMillis
             drawResponse(xRange, yRange, r2)
             //drawResponseWidgets(xRange, yRange, closestSample)
+            drawResponseWidgets(xRange, yRange)
             val endTime = System.currentTimeMillis
             //println("r2 draw time: " + (endTime-startTime) + "ms")
           }
@@ -200,9 +202,13 @@ class ProcessingMainPlotPanel(val project:Viewable)
                data, xSlice, ySlice, xr._2, yr._2, cm)
   }
 
+  /*
   protected def drawResponseWidgets(xRange:(String,(Float,Float)),
                                     yRange:(String,(Float,Float)),
                                     closestSample:Table.Tuple) = {
+  */
+  protected def drawResponseWidgets(xRange:(String,(Float,Float)),
+                                    yRange:(String,(Float,Float))) = {
     val (xFld, yFld) = (xRange._1, yRange._1)
     val bounds = sliceBounds((xFld, yFld))
     val (xf, yf, xr, yr) = if(xFld < yFld) {
@@ -220,6 +226,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
                             xSlice, ySlice, xr._2, yr._2)
 
     // Line to the nearest sample
+    /*
     if(project.viewInfo.showSampleLine) {
       Widgets.sampleLine(this, bounds.minX, bounds.minY,
                                bounds.width, bounds.height,
@@ -227,6 +234,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
                                closestSample(xf), closestSample(yf),
                                xr._2, yr._2)
     }
+    */
 
     // The region mask
     if(project.viewInfo.showRegion)
