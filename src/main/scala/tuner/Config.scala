@@ -35,6 +35,8 @@ object Config {
   val maxEstimateSamples = if(smallScreen) 4000 else 15000
   val maxSampleSqDistance = 1e-9
 
+  val epsilon = 1e-7f
+
   val sampleImageSize = 120
 
   val samplerSplomDims = (400, 400)

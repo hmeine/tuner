@@ -647,6 +647,20 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
   // Next does nothing ... NOTHING!
   def next = this
 
+  def localSensitivities : List[(String, Map[String,Float])] = List(
+    ("gradient", inputFields map {fld => 
+      (fld -> centralDiffGradient(viewInfo.currentSlice.toList, fld))
+    } toMap)
+  )
+
+  def centralDiffGradient(point:List[(String,Float)], fld:String) : Float = {
+    val (x, remPt) = point partition {_._1 == fld}
+    val (_, ctr) = x(0)
+    val mnv = value((fld,ctr-Config.epsilon)::remPt, "y")
+    val mxv = value((fld,ctr+Config.epsilon)::remPt, "y")
+
+    (mxv-mnv) / (2f*Config.epsilon)
+  }
 
   private def orderedPoint(point:List[(String,Float)]) : List[Float] = {
     val pt = point.toMap
