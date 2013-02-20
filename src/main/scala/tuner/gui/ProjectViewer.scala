@@ -24,7 +24,9 @@ import tuner.gui.event.CandidateChanged
 import tuner.gui.event.HistoryAdd
 import tuner.gui.event.SliceChanged
 import tuner.gui.event.ViewChanged
+import tuner.project.FunctionProject
 import tuner.project.Sampler
+import tuner.project.Saved
 import tuner.project.SimViewable
 import tuner.project.Viewable
 
@@ -48,6 +50,18 @@ class ProjectViewer(project:Viewable) extends Window(project) {
   val mainPlotPanel = project match {
     case sv:SimViewable => new JoglMainPlotPanel(sv)
     case _              => new ProcessingMainPlotPanel(project)
+  }
+
+  // Also open a sub-window with sensitivity info
+  project match {
+    case fp:FunctionProject =>
+      val lsw = new LocalSensitivityWindow(fp)
+      lsw.open
+      reactions += {
+        case SliceChanged(_, _) => 
+          lsw.updateView
+      }
+    case _ =>
   }
 
   val visControlPanel = new VisControlPanel(project.viewInfo)
