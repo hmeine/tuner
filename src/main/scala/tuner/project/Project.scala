@@ -637,6 +637,36 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
   def minExpectedGain(response:String) : Float = 0f
   def maxExpectedGain(response:String) : Float = 0f
 
+  // These will come in handy later for variance estimates and such
+  val functionSamples = {
+    val samples = tuner.Sampler.lhc(inputs, Config.numericSampleDensity)
+    val tbl = new Table
+    for(r <- 0 until samples.numRows) {
+      val tpl = samples.tuple(r).toList
+      val y = value(tpl, "y")
+      tbl.addRow(("y", y)::tpl)
+    }
+    tbl
+  }
+
+  // overall mean of the function
+  val mean = {
+    var ttl = 0f
+    for(r <- 0 until functionSamples.numRows) {
+      ttl += functionSamples.tuple(r)("y")
+    }
+    ttl / functionSamples.numRows.toFloat
+  }
+
+  // overall variance of the function
+  val variance:Float = {
+    var ttl = 0f
+    for(r <- 0 until functionSamples.numRows) {
+      ttl += math.pow(functionSamples.tuple(r)("y") - mean, 2).toFloat
+    }
+    ttl / functionSamples.numRows.toFloat
+  }
+
   override def save(savePath:String) : Unit = {
     // Update the view info
     config.currentVis = viewInfo.toJson
@@ -650,6 +680,18 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
   def localSensitivities : List[(String, Map[String,Float])] = List(
     ("gradient", inputFields map {fld => 
       (fld -> centralDiffGradient(viewInfo.currentSlice.toList, fld))
+    } toMap),
+    ("value-normed gradient", inputFields map {fld => 
+      (fld -> valueNormedGradient(viewInfo.currentSlice.toList, fld))
+    } toMap),
+    ("mean-normed gradient", inputFields map {fld => 
+      (fld -> meanNormedGradient(viewInfo.currentSlice.toList, fld))
+    } toMap),
+    ("variance-normed gradient", inputFields map {fld => 
+      (fld -> varianceNormedGradient(viewInfo.currentSlice.toList, fld))
+    } toMap),
+    ("factor fixing variance", inputFields map {fld => 
+      (fld -> factorFixingVariance(viewInfo.currentSlice.toList, fld))
     } toMap)
   )
 
@@ -660,6 +702,41 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
     val mxv = value((fld,ctr+Config.epsilon)::remPt, "y")
 
     (mxv-mnv) / (2f*Config.epsilon)
+  }
+
+  def valueNormedGradient(point:List[(String,Float)], fld:String) : Float = {
+    val x = point.find(_._1 == fld).get._2
+    val y = value(point, "y")
+    (x/y) * centralDiffGradient(point, fld)
+  }
+
+  def meanNormedGradient(point:List[(String,Float)], fld:String) : Float = {
+    val x = inputs.mean(fld)
+    val y = mean
+    (x/y) * centralDiffGradient(point, fld)
+  }
+
+
+  def varianceNormedGradient(point:List[(String,Float)], fld:String) : Float = {
+    val x = inputs.variance(fld)
+    val y = variance
+    (x/y) * centralDiffGradient(point, fld)
+  }
+
+  def factorFixingVariance(point:List[(String,Float)], fld:String) : Float = {
+    val x = point.find(_._1 == fld).get._2
+    val meanValue = value(
+      inputFields map {f => if(f==fld) (f, x) else (f, inputs.mean(f))},
+      "y"
+    )
+    var ttl = 0f
+    for(r <- 0 until functionSamples.numRows) {
+      val tpl = functionSamples.tuple(r)
+      val remPt = tpl.filterKeys {k => k!=fld} toList
+
+      ttl += math.pow(value((fld,x)::remPt, "y") - meanValue, 2).toFloat
+    }
+    ttl / functionSamples.numRows.toFloat
   }
 
   private def orderedPoint(point:List[(String,Float)]) : List[Float] = {
