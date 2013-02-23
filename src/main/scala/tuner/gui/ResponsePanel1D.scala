@@ -109,7 +109,7 @@ class ResponsePanel1D(project:FunctionProject, inputField:String)
 
     gradMeasures.foreach {case (measureStr, measureF) =>
       drawGradient(measureF(project.viewInfo.currentSlice.toList, inputField),
-                   Color(Config.sensitivityGradientColor(measureStr), 0.8f))
+                   Color(Config.sensitivityColors(measureStr), 0.8f))
     }
   }
 

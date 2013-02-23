@@ -113,7 +113,7 @@ object Config {
   val sampleLineDotRadius = scatterplotDotSize / 2
   val sampleLineWidth = 2f
 
-  val sensitivityGradientColor = Map(
+  val sensitivityColors = Map(
     ("gradient"                 -> Color(27,158,119)),
     ("value-normed gradient"    -> Color(217,95,2)),
     ("mean-normed gradient"     -> Color(117,112,179)),
