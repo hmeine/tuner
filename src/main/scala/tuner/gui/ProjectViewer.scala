@@ -65,21 +65,21 @@ class ProjectViewer(project:Viewable) extends Window(project) {
       val lsw = new LocalSensitivityWindow(fp)
       lsw.open
       reactions += {
-        //case ViewChanged(`visControlPanel`) =>
-        case SliceChanged(_, _) =>
+        case ValueChanged(`controlsTab`) =>
           lsw.updateView
       }
       project.inputFields.foreach {fld =>
         val r1dw = new Response1DWindow(fp, fld)
         r1dw.open
         reactions += {
-          //case ViewChanged(`visControlPanel`) =>
-          case SliceChanged(_, _) =>
+          case ValueChanged(`controlsTab`) =>
             r1dw.updateView
         }
       }
     case _ =>
   }
+
+
 
   /*
   val paretoPanel = new ParetoPanel(project) {
@@ -141,8 +141,6 @@ class ProjectViewer(project:Viewable) extends Window(project) {
           slider.value = v
         }
       }
-    case ViewChanged(`visControlPanel`) =>
-      mainPlotPanel.redraw
     case AddSamples(_) => 
       openSamplerDialog
     case HistoryAdd(_, sliceInfo) =>
