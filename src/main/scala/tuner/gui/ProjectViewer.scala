@@ -52,23 +52,34 @@ class ProjectViewer(project:Viewable) extends Window(project) {
     case _              => new ProcessingMainPlotPanel(project)
   }
 
-  // Also open a sub-window with sensitivity info
-  project match {
-    case fp:FunctionProject =>
-      val lsw = new LocalSensitivityWindow(fp)
-      lsw.open
-      reactions += {
-        case SliceChanged(_, _) => 
-          lsw.updateView
-      }
-    case _ =>
-  }
-
   val visControlPanel = new VisControlPanel(project.viewInfo)
 
   val controlPanel = new ControlPanel(project)
   // Need this reference for later
   val plotControls = controlPanel.controlsTab
+
+  // FunctionProjects have a bunch of extra stuff
+  project match {
+    case fp:FunctionProject =>
+      // Open a sub-window with sensitivity info
+      val lsw = new LocalSensitivityWindow(fp)
+      lsw.open
+      reactions += {
+        //case ViewChanged(`visControlPanel`) =>
+        case SliceChanged(_, _) =>
+          lsw.updateView
+      }
+      project.inputFields.foreach {fld =>
+        val r1dw = new Response1DWindow(fp, fld)
+        r1dw.open
+        reactions += {
+          //case ViewChanged(`visControlPanel`) =>
+          case SliceChanged(_, _) =>
+            r1dw.updateView
+        }
+      }
+    case _ =>
+  }
 
   /*
   val paretoPanel = new ParetoPanel(project) {
