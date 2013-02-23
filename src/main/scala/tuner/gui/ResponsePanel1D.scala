@@ -109,7 +109,7 @@ class ResponsePanel1D(project:FunctionProject, inputField:String)
 
     gradMeasures.foreach {case (measureStr, measureF) =>
       drawGradient(measureF(project.viewInfo.currentSlice.toList, inputField),
-                   Color(Config.sensitivityColors(measureStr), 0.8f))
+                   Color(Config.sensitivityColors(measureStr), 0.7f))
     }
   }
 
@@ -127,7 +127,7 @@ class ResponsePanel1D(project:FunctionProject, inputField:String)
     val minY = y + slope * (minX - x)
     val maxY = y + slope * (maxX - x)
 
-    strokeWeight(2)
+    strokeWeight(1.3f)
     stroke(color)
     line(minXX, mapy(minY), maxXX, mapy(maxY))
   }
