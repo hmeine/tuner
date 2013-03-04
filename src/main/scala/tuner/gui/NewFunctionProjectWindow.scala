@@ -23,6 +23,7 @@ import tuner.project.FuncProjInfo
 import tuner.project.InputSpecification
 import tuner.project.OutputSpecification
 import tuner.project.ProjConfig
+import tuner.util.Path
 
 class NewFunctionProjectWindow extends Frame {
 
@@ -174,7 +175,8 @@ class NewFunctionProjectWindow extends Frame {
     )
 
     val func = FunctionCompiler.compile(functionSourceField.text)
-    val np = new FunctionProject(projConfig, locationChooser.path, func) {
+    val projPath = Path.join(locationChooser.path, projectNameField.text)
+    val np = new FunctionProject(projConfig, projPath, func) {
       def minValue(r:String) = funcMinField.text.toFloat
       def maxValue(r:String) = funcMaxField.text.toFloat
     }
