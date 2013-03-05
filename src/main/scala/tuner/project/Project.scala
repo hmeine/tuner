@@ -625,6 +625,8 @@ class FunctionProject(val config:ProjConfig, val path:String,
                       function:InterpretedFunction)
     extends Project with Viewable with Saved {
 
+  val sensitivityFunction = centralDiffGradient _
+
   def value(point:List[(String,Float)]) : Map[String,Float] = 
     Map("y" -> value(point, "y"))
 
@@ -633,7 +635,7 @@ class FunctionProject(val config:ProjConfig, val path:String,
       function(orderedPoint(point))
     } else {
       val param = response.dropRight(Config.sensitivityName.length)
-      centralDiffGradient(point, param)
+      sensitivityFunction(point, param)
     }
 
   def uncertainty(point:List[(String,Float)]) : Map[String,Float] = 
@@ -646,20 +648,8 @@ class FunctionProject(val config:ProjConfig, val path:String,
 
   def expectedGain(point:List[(String,Float)], response:String) : Float = 0f
 
-  def minValue(response:String) : Float = 
-    if(response == "y") {
-      0f
-    } else {
-      val param = response.dropRight(Config.sensitivityName.length)
-      -4f
-    }
-  def maxValue(response:String) : Float =
-    if(response == "y") {
-      1f
-    } else {
-      val param = response.dropRight(Config.sensitivityName.length)
-      4f
-    }
+  def minValue(response:String) : Float = functionSamples.min(response)
+  def maxValue(response:String) : Float = functionSamples.max(response)
 
   def minUncertainty(response:String) : Float = 0f
   def maxUncertainty(response:String) : Float = 0f
@@ -673,8 +663,10 @@ class FunctionProject(val config:ProjConfig, val path:String,
     val tbl = new Table
     for(r <- 0 until samples.numRows) {
       val tpl = samples.tuple(r).toList
-      val y = value(tpl, "y")
-      tbl.addRow(("y", y)::tpl)
+      val sensitivities = inputFields.map {x => 
+        (x+Config.sensitivityName, sensitivityFunction(tpl, x))
+      }
+      tbl.addRow(("y", value(tpl, "y"))::tpl ++ sensitivities)
     }
     tbl
   }
