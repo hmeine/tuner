@@ -41,11 +41,11 @@
       "lowValue":0.0,
       "highValue":1.0
     },{
-      "name":"x4",
+      "name":"x3",
       "lowValue":0.0,
       "highValue":1.0
     },{
-      "name":"x3",
+      "name":"x4",
       "lowValue":0.0,
       "highValue":1.0
     },{
@@ -54,7 +54,7 @@
       "highValue":1.0
     }],
     "response1":"y",
-    "response2":"x1 sensitivity",
+    "response2":"x2 sensitivity",
     "currentVis":"hyperslice",
     "currentMetric":"value",
     "showSampleLine":false,
