@@ -37,9 +37,9 @@ trait MainPlotPanel extends Publisher {
   
   def redraw : Unit
 
-  def colormap(response:String, map:ColormapMap) : SpecifiedColorMap = {
+  def colormap(response:String, metric:ViewInfo.MetricView, map:ColormapMap) : SpecifiedColorMap = {
     val (value, error, gain) = map(response)
-    project.viewInfo.currentMetric match {
+    metric match {
       case ViewInfo.ValueMetric => value
       case ViewInfo.ErrorMetric => error
       case ViewInfo.GainMetric => gain

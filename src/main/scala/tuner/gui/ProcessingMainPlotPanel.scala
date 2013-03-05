@@ -97,14 +97,28 @@ class ProcessingMainPlotPanel(val project:Viewable)
                                leftColorbarBounds.minY,
                                leftColorbarBounds.width, 
                                leftColorbarBounds.height,
-                               r, colormap(r, resp1Colormaps))
+                               r, 
+                               colormap(r, project.viewInfo.currentMetric, 
+                                        resp1Colormaps))
     }
-    project.viewInfo.response2View.foreach {r =>
-      resp2Colorbar.draw(this, rightColorbarBounds.minX, 
-                               rightColorbarBounds.minY,
-                               rightColorbarBounds.width, 
-                               rightColorbarBounds.height,
-                               r, colormap(r, resp2Colormaps))
+    (project.viewInfo.response2View, project.viewInfo.response1View) match {
+      case (Some(r2), _) =>
+        resp2Colorbar.draw(this, rightColorbarBounds.minX, 
+                                 rightColorbarBounds.minY,
+                                 rightColorbarBounds.width, 
+                                 rightColorbarBounds.height,
+                                 r2, 
+                                 colormap(r2, project.viewInfo.currentMetric,
+                                          resp2Colormaps))
+      case (None, Some(r1)) =>
+        resp2Colorbar.draw(this, rightColorbarBounds.minX, 
+                                 rightColorbarBounds.minY,
+                                 rightColorbarBounds.width, 
+                                 rightColorbarBounds.height,
+                                 r1, 
+                                 colormap(r1, ViewInfo.ErrorMetric,
+                                          resp1Colormaps))
+      case (None, None) =>
     }
     val cbEndTime = System.currentTimeMillis
 
@@ -158,20 +172,23 @@ class ProcessingMainPlotPanel(val project:Viewable)
         if(xFld < yFld) {
           project.viewInfo.response1View.foreach {r1 => 
             val startTime = System.currentTimeMillis
-            drawResponse(xRange, yRange, r1)
+            drawResponse(xRange, yRange, r1, project.viewInfo.currentMetric)
             //drawResponseWidgets(xRange, yRange, closestSample)
             drawResponseWidgets(xRange, yRange)
             val endTime = System.currentTimeMillis
             //println("r1 draw time: " + (endTime-startTime) + "ms")
           }
         } else if(xFld > yFld) {
-          project.viewInfo.response2View.foreach {r2 =>
-            val startTime = System.currentTimeMillis
-            drawResponse(xRange, yRange, r2)
-            //drawResponseWidgets(xRange, yRange, closestSample)
-            drawResponseWidgets(xRange, yRange)
-            val endTime = System.currentTimeMillis
-            //println("r2 draw time: " + (endTime-startTime) + "ms")
+          (project.viewInfo.response2View, project.viewInfo.response1View) match {
+            case (Some(r2), _) =>
+              drawResponse(xRange, yRange, r2, project.viewInfo.currentMetric)
+              //drawResponseWidgets(xRange, yRange, closestSample)
+              drawResponseWidgets(xRange, yRange)
+            case (None, Some(r1)) =>
+              drawResponse(xRange, yRange, r1, ViewInfo.ErrorMetric)
+              //drawResponseWidgets(xRange, yRange, closestSample)
+              drawResponseWidgets(xRange, yRange)
+            case (None, None) =>
           }
         }
       }
@@ -180,20 +197,22 @@ class ProcessingMainPlotPanel(val project:Viewable)
 
   protected def drawResponse(xRange:(String,(Float,Float)), 
                              yRange:(String,(Float,Float)), 
-                             response:String) = {
+                             response:String,
+                             metric:ViewInfo.MetricView) = {
 
     val (xFld, yFld) = (xRange._1, yRange._1)
     val bounds = sliceBounds((xFld, yFld))
     val (slice, cm, xf, yf, xr, yr) = if(xFld < yFld) {
-      (resp1Plots((xFld, yFld)), colormap(response, resp1Colormaps),
+      (resp1Plots((xFld, yFld)), colormap(response, metric, resp1Colormaps),
        xFld, yFld, xRange, yRange)
     } else {
-      (resp2Plots((yFld, xFld)), colormap(response, resp2Colormaps),
+      (resp2Plots((yFld, xFld)), colormap(response, metric, resp2Colormaps),
        yFld, xFld, yRange, xRange)
     }
 
     val data = project.sampleMatrix(xr, yr, response, 
-                                    project.viewInfo.currentSlice.toList)
+                                    project.viewInfo.currentSlice.toList,
+                                    metric)
     val (xSlice, ySlice) = (project.viewInfo.currentSlice(xf), 
                             project.viewInfo.currentSlice(yf))
 
@@ -451,7 +470,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
     if(leftColorbarBounds.isInside(mouseX, mouseY)) {
       project.viewInfo.response1View.foreach {r1 =>
         val cb = resp1Colorbar
-        val cm = colormap(r1, resp1Colormaps)
+        val cm = colormap(r1, project.viewInfo.currentMetric, resp1Colormaps)
         val filterVal = P5Panel.map(mouseY, cb.barBounds.maxY, 
                                             cb.barBounds.minY, 
                                             cm.minVal, 
@@ -460,14 +479,24 @@ class ProcessingMainPlotPanel(val project:Viewable)
       }
     }
     if(rightColorbarBounds.isInside(mouseX, mouseY)) {
-      project.viewInfo.response2View.foreach {r2 =>
-        val cb = resp2Colorbar
-        val cm = colormap(r2, resp2Colormaps)
-        val filterVal = P5Panel.map(mouseY, cb.barBounds.maxY, 
-                                            cb.barBounds.minY, 
-                                            cm.minVal, 
-                                            cm.maxVal)
-        cm.filterVal = filterVal
+      (project.viewInfo.response2View, project.viewInfo.response1View) match {
+        case (Some(r2), _) =>
+          val cb = resp2Colorbar
+          val cm = colormap(r2, project.viewInfo.currentMetric, resp2Colormaps)
+          val filterVal = P5Panel.map(mouseY, cb.barBounds.maxY, 
+                                              cb.barBounds.minY, 
+                                              cm.minVal, 
+                                              cm.maxVal)
+          cm.filterVal = filterVal
+        case (None, Some(r1)) =>
+          val cb = resp2Colorbar
+          val cm = colormap(r1, ViewInfo.ErrorMetric, resp1Colormaps)
+          val filterVal = P5Panel.map(mouseY, cb.barBounds.maxY, 
+                                              cb.barBounds.minY, 
+                                              cm.minVal, 
+                                              cm.maxVal)
+          cm.filterVal = filterVal
+        case (None, None) =>
       }
     }
   }

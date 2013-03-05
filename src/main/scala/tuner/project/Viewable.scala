@@ -36,17 +36,22 @@ trait Viewable extends Project {
   def minExpectedGain(response:String) : Float
   def maxExpectedGain(response:String) : Float
 
-  def viewValueFunction : (List[(String,Float)],String)=>Float = 
-    viewInfo.currentMetric match {
+  def viewValueFunction(vi:ViewInfo.MetricView) : (List[(String,Float)],String)=>Float = 
+    vi match {
       case ViewInfo.ValueMetric => value
       case ViewInfo.ErrorMetric => uncertainty
       case ViewInfo.GainMetric  => expectedGain
     }
 
+  def viewValueFunction : (List[(String,Float)],String)=>Float = 
+    viewValueFunction(viewInfo.currentMetric)
+
   def sampleMatrix(xDim:(String,(Float,Float)),
                    yDim:(String,(Float, Float)),
                    response:String,
-                   point:List[(String,Float)]) : Matrix2D = {
+                   point:List[(String,Float)],
+                   metric:ViewInfo.MetricView) : Matrix2D = {
+    val vvf = viewValueFunction(metric)
     val remainingPt = point.filter {case (fld,_) => 
       fld!=xDim._1 && fld!=yDim._1
     }
@@ -58,7 +63,7 @@ trait Viewable extends Project {
       outData.colIds.zipWithIndex.foreach {tmpy =>
         val (yval,y) = tmpy
         val samplePt = (xDim._1,xval)::(yDim._1,yval)::remainingPt
-        outData.set(x, y, viewValueFunction(samplePt, response))
+        outData.set(x, y, vvf(samplePt, response))
       }
     }
     outData

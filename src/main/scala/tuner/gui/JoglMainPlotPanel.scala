@@ -233,7 +233,8 @@ class JoglMainPlotPanel(project:SimViewable)
    */
   override protected def drawResponse(xRange:(String,(Float,Float)),
                                       yRange:(String,(Float,Float)),
-                                      response:String) = {
+                                      response:String,
+                                      metric:ViewInfo.MetricView) = {
 
     // only use the opengl renderer if we're looking at the values
     if(project.viewInfo.currentMetric == ViewInfo.ValueMetric) {
@@ -254,11 +255,13 @@ class JoglMainPlotPanel(project:SimViewable)
       // Now put the texture on a quad
       val (xFld, yFld) = (xRange._1, yRange._1)
       val cm = if(xFld < yFld) resp1Colormaps else resp2Colormaps
-      drawResponseTexturedQuad(gl2, colormap(response, cm), plotTrans)
+      drawResponseTexturedQuad(gl2, 
+                               colormap(response, ViewInfo.ValueMetric, cm), 
+                               plotTrans)
 
       pgl.endGL
     } else {
-      super.drawResponse(xRange, yRange, response)
+      super.drawResponse(xRange, yRange, response, metric)
     }
   }
 
