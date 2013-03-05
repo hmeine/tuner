@@ -25,27 +25,27 @@
   "currentVis":{
     "currentSlice":[{
       "name":"x1",
-      "value":0.484000027179718
+      "value":0.534000039100647
     },{
       "name":"x4",
       "value":0.4125560522079468
     },{
       "name":"x3",
-      "value":0.5
+      "value":0.5110000371932983
     },{
       "name":"x2",
-      "value":0.049000002443790436
+      "value":0.3230000138282776
     }],
     "currentZoom":[{
       "name":"x1",
       "lowValue":0.0,
       "highValue":1.0
     },{
-      "name":"x3",
+      "name":"x4",
       "lowValue":0.0,
       "highValue":1.0
     },{
-      "name":"x4",
+      "name":"x3",
       "lowValue":0.0,
       "highValue":1.0
     },{
@@ -54,6 +54,7 @@
       "highValue":1.0
     }],
     "response1":"y",
+    "response2":"x1 sensitivity",
     "currentVis":"hyperslice",
     "currentMetric":"value",
     "showSampleLine":false,

@@ -124,10 +124,7 @@ object Project {
         }
       case FuncProjInfo(functionSrc, mnv, mxv) =>
         val func = FunctionCompiler.compile(functionSrc)
-        new FunctionProject(config, path, func) {
-          def minValue(response:String) : Float = mnv
-          def maxValue(response:String) : Float = mxv
-        }
+        new FunctionProject(config, path, func)
     }
   }
 
@@ -624,7 +621,7 @@ class SimViewable(val config:ProjConfig, val path:String, val designSites:Table)
 
 }
 
-abstract class FunctionProject(val config:ProjConfig, val path:String, 
+class FunctionProject(val config:ProjConfig, val path:String, 
                       function:InterpretedFunction)
     extends Project with Viewable with Saved {
 
@@ -632,7 +629,12 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
     Map("y" -> value(point, "y"))
 
   def value(point:List[(String,Float)], response:String) : Float = 
-    function(orderedPoint(point))
+    if(response == "y") {
+      function(orderedPoint(point))
+    } else {
+      val param = response.dropRight(Config.sensitivityName.length)
+      centralDiffGradient(point, param)
+    }
 
   def uncertainty(point:List[(String,Float)]) : Map[String,Float] = 
     Map("y" -> uncertainty(point, "y"))
@@ -643,6 +645,21 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
     Map("y" -> uncertainty(point, "y"))
 
   def expectedGain(point:List[(String,Float)], response:String) : Float = 0f
+
+  def minValue(response:String) : Float = 
+    if(response == "y") {
+      0f
+    } else {
+      val param = response.dropRight(Config.sensitivityName.length)
+      -4f
+    }
+  def maxValue(response:String) : Float =
+    if(response == "y") {
+      1f
+    } else {
+      val param = response.dropRight(Config.sensitivityName.length)
+      4f
+    }
 
   def minUncertainty(response:String) : Float = 0f
   def maxUncertainty(response:String) : Float = 0f
@@ -679,6 +696,9 @@ abstract class FunctionProject(val config:ProjConfig, val path:String,
     }
     ttl / functionSamples.numRows.toFloat
   }
+
+  override def responses = 
+    super.responses ++ inputFields.map {x => (x+Config.sensitivityName, true)}
 
   override def save(savePath:String) : Unit = {
     // Update the view info

@@ -176,10 +176,7 @@ class NewFunctionProjectWindow extends Frame {
 
     val func = FunctionCompiler.compile(functionSourceField.text)
     val projPath = Path.join(locationChooser.path, projectNameField.text)
-    val np = new FunctionProject(projConfig, projPath, func) {
-      def minValue(r:String) = funcMinField.text.toFloat
-      def maxValue(r:String) = funcMaxField.text.toFloat
-    }
+    val np = new FunctionProject(projConfig, projPath, func)
 
     np.save()
     np
