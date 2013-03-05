@@ -86,21 +86,71 @@ object Table {
 class Table {
   val data:ArrayBuffer[Table.Tuple] = new ArrayBuffer
 
+  // Caching data structures
+  private var means = Map[String,Float]()
+  private var variances = Map[String,Float]()
+  private var mins = Map[String,Float]()
+  private var maxes = Map[String,Float]()
+
   def addRow(values:List[(String, Float)]) = {
     data += values.toMap
+
+    means = Map[String,Float]()
+    variances = Map[String,Float]()
+    mins = Map[String,Float]()
+    maxes = Map[String,Float]()
   }
 
-  def removeRow(row:Int) = data.remove(row)
-
-  def clear = data.clear
-
-  def min(col:String) : Float = {
-    data.map({_.get(col)}).flatten.min
+  def removeRow(row:Int) = {
+    data.remove(row)
+    means = Map[String,Float]()
+    variances = Map[String,Float]()
+    mins = Map[String,Float]()
+    maxes = Map[String,Float]()
   }
 
-  def max(col:String) : Float = {
-    data.map({_.get(col)}).flatten.max
+  def clear = {
+    data.clear
+    means = Map[String,Float]()
+    variances = Map[String,Float]()
+    mins = Map[String,Float]()
+    maxes = Map[String,Float]()
   }
+
+  def min(col:String) : Float = mins.get(col) match {
+    case Some(v) => v
+    case None =>
+      val v = data.map({_.get(col)}).flatten.min
+      mins += (col -> v)
+      v
+  }
+
+  def max(col:String) : Float = maxes.get(col) match {
+    case Some(v) => v
+    case None =>
+      val v = data.map({_.get(col)}).flatten.max
+      maxes += (col -> v)
+      v
+  }
+
+  def mean(col:String) : Float = means.get(col) match {
+    case Some(v) => v
+    case None =>
+      val v = data.map({_.get(col)}).flatten.sum / data.length.toFloat
+      means += (col -> v)
+      v
+  }
+
+  def variance(col:String) : Float = variances.get(col) match {
+    case Some(v) => v
+    case None =>
+      var ttl = 0f
+      data.foreach {tpl => math.pow(tpl(col) - mean(col), 2).toFloat}
+      val v = ttl / data.length.toFloat
+      variances += (col -> v)
+      v
+  }
+
 
   def fieldNames : List[String] = {
     data.foldLeft(Set[String]())({(st:Set[String],tpl:Table.Tuple) => st ++ tpl.keys.toSet}).toList
@@ -152,6 +202,10 @@ class Table {
   def merge(t:Table) = {
     for(r <- 0 until t.numRows)
       addRow(t.tuple(r).toList)
+    means = Map[String,Float]()
+    variances = Map[String,Float]()
+    mins = Map[String,Float]()
+    maxes = Map[String,Float]()
   }
 
   def filter(f:Table.Filter) : Table = {

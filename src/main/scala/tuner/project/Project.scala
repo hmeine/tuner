@@ -672,22 +672,10 @@ class FunctionProject(val config:ProjConfig, val path:String,
   }
 
   // overall mean of the function
-  val mean = {
-    var ttl = 0f
-    for(r <- 0 until functionSamples.numRows) {
-      ttl += functionSamples.tuple(r)("y")
-    }
-    ttl / functionSamples.numRows.toFloat
-  }
+  val mean = functionSamples.mean("y")
 
   // overall variance of the function
-  val variance:Float = {
-    var ttl = 0f
-    for(r <- 0 until functionSamples.numRows) {
-      ttl += math.pow(functionSamples.tuple(r)("y") - mean, 2).toFloat
-    }
-    ttl / functionSamples.numRows.toFloat
-  }
+  val variance = functionSamples.variance("y")
 
   override def responses = 
     super.responses ++ inputFields.map {x => (x+Config.sensitivityName, true)}
