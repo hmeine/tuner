@@ -12,13 +12,13 @@ import tuner.SpecifiedColorMap
 import tuner.Table
 import tuner.ViewInfo
 import tuner.geom.Rectangle
-import tuner.gui.util.AxisTicks
 import tuner.gui.util.FacetLayout
 import tuner.gui.widgets.Axis
 import tuner.gui.widgets.Colorbar
 import tuner.gui.widgets.ContinuousPlot
 import tuner.gui.widgets.Widgets
 import tuner.project.Viewable
+import tuner.util.AxisTicks
 import tuner.util.ColorLib
 
 import scala.collection.mutable.Queue
@@ -59,21 +59,6 @@ class ProcessingMainPlotPanel(val project:Viewable)
       clearFonts
     case UIElementResized(_) => 
       clearFonts
-  }
-
-  def plotData(model:GpModel,
-               xDim:(String,(Float,Float)), 
-               yDim:(String,(Float,Float)), 
-               slice:Map[String,Float]) : Matrix2D = {
-    // Progressive rendering
-    val idealSize = project.viewInfo.estimateSampleDensity
-    val sample = model.sampleSlice(xDim, yDim, slice.toList, idealSize)
-    val data = project.viewInfo.currentMetric match {
-      case ViewInfo.ValueMetric => sample._1
-      case ViewInfo.ErrorMetric => sample._2
-      case ViewInfo.GainMetric => sample._3
-    }
-    data._2
   }
 
   override def setup = {
@@ -229,7 +214,6 @@ class ProcessingMainPlotPanel(val project:Viewable)
                              response:String) = {
 
     val (xFld, yFld) = (xRange._1, yRange._1)
-    val model = project.gpModels(response)
     val bounds = sliceBounds((xFld, yFld))
     val (slice, cm, xf, yf, xr, yr) = if(xFld < yFld) {
       (resp1Plots((xFld, yFld)), colormap(response, resp1Colormaps),
@@ -239,7 +223,8 @@ class ProcessingMainPlotPanel(val project:Viewable)
        yFld, xFld, yRange, xRange)
     }
 
-    val data = plotData(model, xr, yr, project.viewInfo.currentSlice)
+    val data = project.sampleMatrix(xr, yr, response, 
+                                    project.viewInfo.currentSlice.toList)
     val (xSlice, ySlice) = (project.viewInfo.currentSlice(xf), 
                             project.viewInfo.currentSlice(yf))
 
