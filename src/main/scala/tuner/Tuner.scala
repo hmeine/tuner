@@ -146,6 +146,10 @@ object Tuner extends SimpleSwingApplication {
     }
   }
 
+  def timeDemo : Unit = {
+    println("time demo!!!")
+  }
+
   def listenTo(tunerWin:tuner.gui.Window) : Unit = {
     //println("listening to " + tunerWin)
     openWindows += tunerWin

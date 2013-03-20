@@ -101,6 +101,12 @@ class MainMenu(project:Option[Project]) extends MenuBar {
 
     contents += new Separator
 
+    contents += new MenuItem(new Action("Time Demo") {
+      def apply = Tuner.timeDemo
+    })
+
+    contents += new Separator
+
     contents += new MenuItem(new Action("Open Project…") {
       accelerator = Some(CommandKey('O'))
       //accelerator = Some(javax.swing.KeyStroke.getKeyStroke('O', java.awt.event.InputEvent.META_MASK))
