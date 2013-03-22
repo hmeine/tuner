@@ -407,7 +407,8 @@ class Viewable(config:ProjConfig, val path:String, val designSites:Table)
   val previewImages:Option[PreviewImages] = loadImages(path)
 
   // Also set up a table of samples from each gp model
-  val modelSamples:Table = loadResponseSamples(path)
+  //val modelSamples:Table = loadResponseSamples(path)
+  val modelSamples:Table = new Table
 
   save()
 
