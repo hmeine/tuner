@@ -17,6 +17,7 @@ import tuner.gui.ProjectChooser
 import tuner.gui.ProjectViewer
 import tuner.gui.ResponseSelector
 import tuner.gui.SamplingProgressBar
+import tuner.gui.TimeDemoStatusWindow
 import tuner.gui.WindowMenu
 import tuner.gui.R.InstallPackageDialog
 import tuner.gui.R.RNotInstalledDialog
@@ -147,7 +148,16 @@ object Tuner extends SimpleSwingApplication {
   }
 
   def timeDemo : Unit = {
-    println("time demo!!!")
+    // Close all open projects
+    openWindows.foreach {win => win.close}
+
+    // Set up for the time demo
+    DrawTimer.reset
+    val statusWindow = new TimeDemoStatusWindow
+    statusWindow.open
+
+    val runner = new TimeDemoRunner(statusWindow)
+    runner.start
   }
 
   def listenTo(tunerWin:tuner.gui.Window) : Unit = {

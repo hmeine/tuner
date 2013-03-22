@@ -195,7 +195,11 @@
       "value":0.7230000495910645
     }],
     "currentZoom":[{
-      "name":"alpha5",
+      "name":"alpha1",
+      "lowValue":0.0,
+      "highValue":1.0
+    },{
+      "name":"alpha6",
       "lowValue":0.0,
       "highValue":2.0
     },{
@@ -203,13 +207,13 @@
       "lowValue":0.0,
       "highValue":10.0
     },{
-      "name":"alpha6",
-      "lowValue":0.0,
-      "highValue":2.0
-    },{
       "name":"sigma",
       "lowValue":0.0,
       "highValue":1.0
+    },{
+      "name":"alpha7",
+      "lowValue":0.0,
+      "highValue":2.0
     },{
       "name":"alpha3",
       "lowValue":0.0,
@@ -219,13 +223,9 @@
       "lowValue":0.0,
       "highValue":1.0
     },{
-      "name":"alpha7",
+      "name":"alpha5",
       "lowValue":0.0,
       "highValue":2.0
-    },{
-      "name":"alpha1",
-      "lowValue":0.0,
-      "highValue":1.0
     }],
     "response1":"dice6",
     "response2":"Error6",

@@ -76,6 +76,8 @@ object DrawTimer {
     time
   }
 
+  def reset = drawTimes.clear
+
   def timed(block: => Unit) : Timing = timed(false)(block)
 
   /**
