@@ -62,7 +62,6 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
     projWindow.open
 
     val sliders = projWindow.controlsTab.sliceSliders
-    /*
     (0 until Config.timeDemoFocusChanges).foreach {j =>
       // pick a dimension
       val randDim = scala.util.Random.nextInt(d) + 1
@@ -72,7 +71,6 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
       if(newVal > 1) sliders("x"+randDim).value = newVal - 1
       else           sliders("x"+randDim).value = newVal
     }
-    */
 
     projWindow.close
   }
@@ -84,6 +82,7 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
       (1 to d).map {dd => tpl("x"+dd)}
     }
     val resps = List.fill(n)(1.0)
+    val theta = -math.log(0.01) / (r*r)
 
     // TODO: put in the correct inverse matrix!  This one is way wrong
     val invCorMtx = Array.fill(n, n)(0.0)
@@ -92,8 +91,8 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
     GpSpecification(
       responseDim = Config.timeDemoOutputName,
       dimNames = (1 to d).map {dd => "x"+dd} toList,
-      thetas = List.fill(d)(2.0),
-      alphas = List.fill(d)(r),
+      thetas = List.fill(d)(theta),
+      alphas = List.fill(d)(2.0),
       mean = 0.0,
       sigma2 = 1.0,
       designMatrix = design.map {r => r.map(_.toDouble) toList} toList,
