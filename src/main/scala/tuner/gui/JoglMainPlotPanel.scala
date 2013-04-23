@@ -237,9 +237,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST)
       val fakeBuffer = Buffers.newDirectFloatBuffer(Array.fill(4*texWidth*texHeight)(0f))
       fakeBuffer.rewind
-      gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL2GL3.GL_RGBA32F, 
+      gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA32F, 
                       texWidth, texHeight, 0, 
-                      GL2GL3.GL_BGRA, GL.GL_FLOAT, fakeBuffer)
+                      GL.GL_BGRA, GL.GL_FLOAT, fakeBuffer)
       //gl.glGenerateMipmap(GL.GL_TEXTURE_2D)
     }
   }
