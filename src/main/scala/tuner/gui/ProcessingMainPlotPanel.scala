@@ -66,8 +66,8 @@ class ProcessingMainPlotPanel(val project:Viewable)
   }
 
   override def setup = {
-    super.setup
     loop = false
+    super.setup
   }
 
   def redraw = applet.loop
@@ -135,10 +135,12 @@ class ProcessingMainPlotPanel(val project:Viewable)
 
     val staticTime = totalTime - resp1Time - resp2Time
 
+    /*
     println("times: total: " + totalTime + 
                  " static: " + staticTime + 
                      " r1: " + resp1Time + 
                      " r2: " + resp2Time)
+    */
 
     // Add a timing result
     addStaticTiming(staticTime)
