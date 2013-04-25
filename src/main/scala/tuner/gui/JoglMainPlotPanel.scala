@@ -11,6 +11,7 @@ import scala.swing.event.{MouseClicked, MouseDragged, MouseMoved}
 import tuner.BoxRegion
 import tuner.Color
 import tuner.Config
+import tuner.DrawTimer._
 import tuner.EllipseRegion
 import tuner.SpecifiedColorMap
 import tuner.Table
@@ -158,59 +159,86 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   def redraw = peer.display
 
   def display(gl2:GL2) = {
+
+    var resp1Time:Timing = 0
+    var resp2Time:Timing = 0
+
     // The clear color gets reset by the plot drawings
-    gl2.glClearColor(backgroundColor.r, 
-                     backgroundColor.g, 
-                     backgroundColor.b, 
-                     1f)
-    gl2.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    // The 2D graphics we need
-    val t1 = System.currentTimeMillis
-    val j2d = overlay.createGraphics
-    //println("t1: " + (System.currentTimeMillis-t1))
-    j2d.setBackground(new java.awt.Color(0, 0, 0, 0))
-    val t2 = System.currentTimeMillis
-    j2d.clearRect(0, 0, 1000, 1000)
-    //println("t2: " + (System.currentTimeMillis-t2))
-
-    // See if we should highlight the 2 plots
-    mousedPlot.foreach {case (fld1, fld2) => drawPlotHighlight(gl2, fld1, fld2)}
-
-    // Draw the colorbars
-    //val t4 = System.currentTimeMillis
-    project.viewInfo.response1View.foreach {r =>
-      resp1Colorbar.draw(j2d, leftColorbarBounds.minX, 
-                              leftColorbarBounds.minY,
-                              leftColorbarBounds.width, 
-                              leftColorbarBounds.height,
-                              r, colormap(r, resp1Colormaps))
+    val totalTime = timed {
+      gl2.glClearColor(backgroundColor.r, 
+                       backgroundColor.g, 
+                       backgroundColor.b, 
+                       1f)
+      gl2.glClear(GL.GL_COLOR_BUFFER_BIT)
+  
+      // The 2D graphics we need
+      val j2d = overlay.createGraphics
+      j2d.setBackground(new java.awt.Color(0, 0, 0, 0))
+      j2d.clearRect(0, 0, 1000, 1000)
+  
+      // See if we should highlight the 2 plots
+      mousedPlot.foreach {case (fld1, fld2) => drawPlotHighlight(gl2, fld1, fld2)}
+  
+      // Draw the colorbars
+      project.viewInfo.response1View.foreach {r =>
+        resp1Time += timed {
+          resp1Colorbar.draw(j2d, leftColorbarBounds.minX, 
+                                  leftColorbarBounds.minY,
+                                  leftColorbarBounds.width, 
+                                  leftColorbarBounds.height,
+                                  r, colormap(r, resp1Colormaps))
+        }
+      }
+      project.viewInfo.response2View.foreach {r =>
+        resp2Time += timed {
+          resp2Colorbar.draw(j2d, rightColorbarBounds.minX, 
+                                  rightColorbarBounds.minY,
+                                  rightColorbarBounds.width, 
+                                  rightColorbarBounds.height,
+                                  r, colormap(r, resp2Colormaps))
+        }
+      }
+  
+      // Draw the axes
+      project.inputFields.foreach {fld =>
+        val rng = (fld, project.viewInfo.currentZoom.range(fld))
+        val (t1, t2) = drawAxes(gl2, rng)
+        resp1Time += t1
+        resp2Time += t2
+      }
+  
+      // Draw the responses
+      val (t1, t2) = drawResponses(gl2, j2d)
+      resp1Time += t1
+      resp2Time += t2
+  
+      overlay.markDirty(0, 0, 1000, 1000)
+      overlay.drawAll
+  
+      // Also get rid of the Java2D graphics
+      j2d.dispose
     }
-    project.viewInfo.response2View.foreach {r =>
-      resp2Colorbar.draw(j2d, rightColorbarBounds.minX, 
-                              rightColorbarBounds.minY,
-                              rightColorbarBounds.width, 
-                              rightColorbarBounds.height,
-                              r, colormap(r, resp2Colormaps))
+
+    // static time is basically everything not related to the responses
+    // which includes checking if we need to draw one of the responses
+    val staticTime = totalTime - resp1Time - resp2Time    
+
+    // Add a timing result
+    addStaticTiming(staticTime)
+    project.viewInfo.response1View.foreach {r1 =>
+      val model = project.gpModels(r1)
+      val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
+        (lb, ub, math.sqrt(-math.log(0.01) / model.theta(f)).toFloat)
+      }
+      addElipticalTiming(project.numUnclippedPoints, radii, resp1Time)
     }
-    //println("colorbar draw: " + (System.currentTimeMillis-t4))
-
-    // Draw the axes
-    //val t5 = System.currentTimeMillis
-    project.inputFields.foreach {fld =>
-      val rng = (fld, project.viewInfo.currentZoom.range(fld))
-      drawAxes(gl2, rng)
+    project.viewInfo.response2View.foreach {r2 =>
+      val model = project.gpModels(r2)
+      val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
+        (lb, ub, math.sqrt(-math.log(0.01) / model.theta(f)).toFloat)
+      }
+      addElipticalTiming(project.numUnclippedPoints, radii, resp2Time)
     }
-    //println("axis draw: " + (System.currentTimeMillis - t5))
-
-    // Draw the responses
-    drawResponses(gl2, j2d)
-
-    overlay.markDirty(0, 0, 1000, 1000)
-    overlay.drawAll
-
-    // Also get rid of the Java2D graphics
-    j2d.dispose
   }
 
   /**
@@ -304,75 +332,78 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     val firstField = project.inputFields.head
     val lastField = project.inputFields.last
 
-    //val t8 = System.currentTimeMillis
-    project.viewInfo.response1View.foreach {r1 =>
-      // See if we draw the x-axis
-      if(fld != lastField) {
-        val sliceDim = sliceBounds((fld, lastField))
-        val axis = resp1XAxes(fld)
-        //val t10 = System.currentTimeMillis
-        val ticks = AxisTicks.ticks(low, high, 
-                                    sliceDim.height, 
-                                    Config.smallFontSize)
-        //println("tick compute: " + (System.currentTimeMillis-t10))
-        //val t11 = System.currentTimeMillis
-        axis.draw(gl2, textRenderer, 
-                       sliceDim.minX, bottomAxisBounds.minY,
-                       sliceDim.width, bottomAxisBounds.height,
-                       screenWidth, screenHeight,
-                       fld, ticks)
-        //println("axis draw: " + (System.currentTimeMillis-t11))
-      }
-      // See if we draw the y-axis
-      if(fld != firstField) {
-        val sliceDim = sliceBounds((firstField, fld))
-        val axis = resp1YAxes(fld)
-        val ticks = AxisTicks.ticks(low, high, 
-                                    sliceDim.height, 
-                                    Config.smallFontSize)
-        axis.draw(gl2, textRenderer, 
-                       leftAxisBounds.minX, sliceDim.minY,
-                       leftAxisBounds.width, sliceDim.height,
-                       screenWidth, screenHeight,
-                       fld, ticks)
+    val r1Time = project.viewInfo.response1View match {
+      case None     => Nanos(0)
+      case Some(r1) => timed {
+        // See if we draw the x-axis
+        if(fld != lastField) {
+          val sliceDim = sliceBounds((fld, lastField))
+          val axis = resp1XAxes(fld)
+          val ticks = AxisTicks.ticks(low, high, 
+                                      sliceDim.height, 
+                                      Config.smallFontSize)
+          axis.draw(gl2, textRenderer, 
+                         sliceDim.minX, bottomAxisBounds.minY,
+                         sliceDim.width, bottomAxisBounds.height,
+                         screenWidth, screenHeight,
+                         fld, ticks)
+        }
+        // See if we draw the y-axis
+        if(fld != firstField) {
+          val sliceDim = sliceBounds((firstField, fld))
+          val axis = resp1YAxes(fld)
+          val ticks = AxisTicks.ticks(low, high, 
+                                      sliceDim.height, 
+                                      Config.smallFontSize)
+          axis.draw(gl2, textRenderer, 
+                         leftAxisBounds.minX, sliceDim.minY,
+                         leftAxisBounds.width, sliceDim.height,
+                         screenWidth, screenHeight,
+                         fld, ticks)
+        }
       }
     }
-    //println("r1 axis draw: " + (System.currentTimeMillis-t8))
 
-    //val t9 = System.currentTimeMillis
-    project.viewInfo.response2View.foreach {r2 =>
-      // See if we draw the x-axis
-      if(fld != lastField) {
-        val sliceDim = sliceBounds((lastField, fld))
-        val axis = resp2XAxes(fld)
-        val ticks = AxisTicks.ticks(low, high, 
-                                    sliceDim.height, 
-                                    Config.smallFontSize)
-        axis.draw(gl2, textRenderer, sliceDim.minX, topAxisBounds.minY,
-                       sliceDim.width, topAxisBounds.height,
-                       screenWidth, screenHeight,
-                       fld, ticks)
-      }
-      // See if we draw the y-axis
-      if(fld != firstField) {
-        val sliceDim = sliceBounds((fld, firstField))
-        val axis = resp2YAxes(fld)
-        val ticks = AxisTicks.ticks(low, high, 
-                                    sliceDim.height, 
-                                    Config.smallFontSize)
-        axis.draw(gl2, textRenderer, rightAxisBounds.minX, sliceDim.minY,
-                       rightAxisBounds.width, sliceDim.height,
-                       screenWidth, screenHeight,
-                       fld, ticks)
+    val r2Time = project.viewInfo.response2View match {
+      case None     => Nanos(0)
+      case Some(r2) => timed {
+        // See if we draw the x-axis
+        if(fld != lastField) {
+          val sliceDim = sliceBounds((lastField, fld))
+          val axis = resp2XAxes(fld)
+          val ticks = AxisTicks.ticks(low, high, 
+                                      sliceDim.height, 
+                                      Config.smallFontSize)
+          axis.draw(gl2, textRenderer, sliceDim.minX, topAxisBounds.minY,
+                         sliceDim.width, topAxisBounds.height,
+                         screenWidth, screenHeight,
+                         fld, ticks)
+        }
+        // See if we draw the y-axis
+        if(fld != firstField) {
+          val sliceDim = sliceBounds((fld, firstField))
+          val axis = resp2YAxes(fld)
+          val ticks = AxisTicks.ticks(low, high, 
+                                      sliceDim.height, 
+                                      Config.smallFontSize)
+          axis.draw(gl2, textRenderer, rightAxisBounds.minX, sliceDim.minY,
+                         rightAxisBounds.width, sliceDim.height,
+                         screenWidth, screenHeight,
+                         fld, ticks)
+        }
       }
     }
-    //println("r2 axis draw: " + (System.currentTimeMillis-t9))
+
+    (r1Time, r2Time)
   }
 
   /**
    * Does opengl setup and takedown 
    */
   protected def drawResponses(gl2:GL2, j2d:Graphics2D) = {
+
+    var r1Time:Timing = 0
+    var r2Time:Timing = 0
 
     // Find the closest sample
     val closestSample = project.closestSample(
@@ -386,17 +417,23 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
         if(xFld < yFld) {
           project.viewInfo.response1View.foreach {r1 => 
-            drawResponse(gl2, xRange, yRange, r1)
-            drawResponseWidgets(gl2, j2d, xRange, yRange, closestSample)
+            r1Time += timed {
+              drawResponse(gl2, xRange, yRange, r1)
+              drawResponseWidgets(gl2, j2d, xRange, yRange, closestSample)
+            }
           }
         } else if(xFld > yFld) {
           project.viewInfo.response2View.foreach {r2 =>
-            drawResponse(gl2, xRange, yRange, r2)
-            drawResponseWidgets(gl2, j2d, xRange, yRange, closestSample)
+            r2Time += timed {
+              drawResponse(gl2, xRange, yRange, r2)
+              drawResponseWidgets(gl2, j2d, xRange, yRange, closestSample)
+            }
           }
         }
       }
     }
+
+    (r1Time, r2Time)
   }
 
   /**
