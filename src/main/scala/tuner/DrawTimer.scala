@@ -1,5 +1,7 @@
 package tuner
 
+import java.io.{BufferedWriter,FileWriter}
+
 import collection.mutable.MutableList
 
 /**
@@ -57,11 +59,21 @@ object DrawTimer {
   type TimingRadii = (Float,Float,Float)
 
   // The time to draw an individual hyperslice plot matrix
-  val drawTimes = new MutableList[(Int,Iterable[TimingRadii],Timing)]
+  //val drawTimes = new MutableList[(Int,Iterable[TimingRadii],Timing)]
+  lazy val drawTimes = {
+    val r = new BufferedWriter(new FileWriter("drawing_times.csv", true))
+    r.write("total points,min1,max1,radius1,time1 (sec)\n")
+    r
+  }
 
   // The time to draw all the static information that doesn't depend
   // on what hyperslice view we're drawing
-  val staticTimes = new MutableList[Timing]
+  //val staticTimes = new MutableList[Timing]
+  lazy val staticTimes = {
+    val r = new BufferedWriter(new FileWriter("static_times.csv", true))
+    r.write("time (sec)\n")
+    r
+  }
 
   /**
    * A utility function to return the time to run a block of code
@@ -76,28 +88,40 @@ object DrawTimer {
     time
   }
 
-  def reset = drawTimes.clear
+  def saveAll = {
+    drawTimes.close
+    staticTimes.close
+  }
 
   def timed(block: => Unit) : Timing = timed(false)(block)
 
   /**
    * add a timing for drawing code that doesn't depend on the response surface
    */
-  def addStaticTiming(time:Timing) = staticTimes += time
+  def addStaticTiming(time:Timing) = {
+    staticTimes.write(time.toString)
+    staticTimes.write("\n")
+  }
 
   /**
    * add a drawing timing for spherical kernels in (0,1) dimension spaces
    */
   def addSphericalTiming(totalPoints:Int, radius:Float, dims:Int, time:Timing) =
-    drawTimes +=((totalPoints, List.fill(dims)((0, 1, radius)), time))
+    addElipticalTiming(totalPoints, List.fill(dims)((0, 1, radius)), time)
 
   /**
    * add a drawing timing for eliptical kernels
    */
   def addElipticalTiming(totalPoints:Int, 
                          radii:Iterable[TimingRadii], 
-                         time:Timing) =
-    drawTimes +=((totalPoints, radii, time))
+                         time:Timing) = {
+    drawTimes.write(totalPoints + ",")
+    drawTimes.write(time.toString)
+    drawTimes.write(
+      radii.map({case (mn,mx,r) => mn + "," + mx + "," + r}).mkString(",")
+    )
+    drawTimes.write("\n")
+  }
 
 }
 

@@ -14,6 +14,7 @@ import scala.swing.event.TableRowsSelected
 import javax.swing.table.AbstractTableModel
 
 import tuner.Config
+import tuner.DrawTimer
 import tuner.Tuner
 import tuner.TimeDemoRunner
 import tuner.project.Project
@@ -39,6 +40,7 @@ object ProjectChooser extends Frame {
     (1 to Config.timeDemoRepeats).foreach {i =>
       tdr.runProject(d, n, r, i)
     }
+    DrawTimer.saveAll
     System.exit(0)
   }
 

@@ -159,7 +159,6 @@ object Tuner extends SimpleSwingApplication {
     openWindows.foreach {win => win.close}
 
     // Set up for the time demo
-    DrawTimer.reset
     val statusWindow = new TimeDemoStatusWindow
     statusWindow.open
 
