@@ -199,8 +199,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       // The 2D graphics we need
       val j2d = overlay.createGraphics
       j2d.setBackground(new java.awt.Color(0, 0, 0, 0))
-      j2d.clearRect(0, 0, 1000, 1000)
-  
+      j2d.clearRect(0, 0, screenWidth, screenHeight)
+
       // See if we should highlight the 2 plots
       mousedPlot.foreach {case (fld1, fld2) => drawPlotHighlight(gl2, fld1, fld2)}
   
