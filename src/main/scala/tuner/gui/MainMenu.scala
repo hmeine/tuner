@@ -102,7 +102,7 @@ class MainMenu(project:Option[Project]) extends MenuBar {
     contents += new Separator
 
     contents += new MenuItem(new Action("Time Demo") {
-      def apply = Tuner.timeDemo
+      def apply = Tuner.runFullTimeDemo
     })
 
     contents += new Separator

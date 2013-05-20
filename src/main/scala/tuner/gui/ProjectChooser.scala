@@ -13,7 +13,9 @@ import scala.swing.event.TableRowsSelected
 
 import javax.swing.table.AbstractTableModel
 
+import tuner.Config
 import tuner.Tuner
+import tuner.TimeDemoRunner
 import tuner.project.Project
 
 /**
@@ -29,6 +31,17 @@ object ProjectChooser extends Frame {
   val myMenu = new MainMenu
   menuBar = myMenu
   centerOnScreen
+
+  Tuner.timeDemo.foreach {case (d, n, r) =>
+    val statusWindow = new TimeDemoStatusWindow
+    statusWindow.open
+    val tdr = new TimeDemoRunner(statusWindow, d, n, r)
+    (1 to Config.timeDemoRepeats).foreach {i =>
+      tdr.runProject(d, n, r, i)
+    }
+    System.exit(0)
+  }
+
 
   // All the buttons
   val newProjectButton = new Button("New Project")

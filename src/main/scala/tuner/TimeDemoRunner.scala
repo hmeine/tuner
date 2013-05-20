@@ -10,18 +10,12 @@ import tuner.project.OutputSpecification
 import tuner.project.ProjConfig
 import tuner.project.Viewable
 
-class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
+class TimeDemoRunner(progWindow:TimeDemoStatusWindow, 
+                     d:Int, n:Int, r:Float) extends Actor {
   def act = {
-    Config.timeDemoDims.foreach {d =>
-      Config.timeDemoPoints.foreach {n =>
-        Config.timeDemoRadii.foreach {r =>
-          (1 to Config.timeDemoRepeats).foreach {i =>
-            runProject(d, n, r, i)
-          }
-        }
-      }
+    (1 to Config.timeDemoRepeats).foreach {i =>
+      runProject(d, n, r, i)
     }
-    println("done!")
   }
 
   def runProject(d:Int, n:Int, r:Float, i:Int) = {
@@ -82,11 +76,20 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
       (1 to d).map {dd => tpl("x"+dd)}
     }
     val resps = List.fill(n)(1.0)
-    val theta = -math.log(0.01) / (r*r)
+    val maxDist = -math.log(Config.maxSampleSqDistance)
+    val theta = maxDist / (r*r) / d
 
-    // TODO: put in the correct inverse matrix!  This one is way wrong
-    val invCorMtx = Array.fill(n, n)(0.0)
-    (0 until n).foreach {i => invCorMtx(i)(i) = 1.0}
+    val corMtx = new Jama.Matrix(n, n)
+    (0 until n).foreach {i => 
+      val xx1 = (1 to d).map {dd => samples.tuple(i)("x"+dd)}
+      (0 until n).foreach {j =>
+        val xx2 = (1 to d).map {dd => samples.tuple(j)("x"+dd)}
+        val dist = xx1.zip(xx2).map({case (x1,x2) => math.pow(x1-x2, 2)}).sum
+        // we can cheat because theta is constant across dimensions
+        corMtx.set(i, j, math.exp(-d*theta * dist))
+      }
+    }
+    val invCorMtx = corMtx.inverse
 
     GpSpecification(
       responseDim = Config.timeDemoOutputName,
@@ -97,7 +100,7 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow) extends Actor {
       sigma2 = 1.0,
       designMatrix = design.map {r => r.map(_.toDouble) toList} toList,
       responses = resps,
-      invCorMtx.map {_.toList} toList)
+      invCorMtx.getArray.map {_.toList} toList)
   }
 
   def randomSamples(d:Int, n:Int) : Table = {

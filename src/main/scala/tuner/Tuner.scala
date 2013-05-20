@@ -28,6 +28,8 @@ import tuner.project._
  */
 object Tuner extends SimpleSwingApplication {
 
+  var timeDemo:Option[(Int,Int,Float)] = None
+
   override def main(args:Array[String]) = {
     // Set up the menu bar for a mac
     System.setProperty("apple.laf.useScreenMenuBar", "true")
@@ -35,6 +37,12 @@ object Tuner extends SimpleSwingApplication {
     System.setProperty("com.apple.mrj.application.growbox.intrudes", "false")
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Tuner")
 
+    if(args(0) == "-timedemo") {
+      val d = args(1).toInt
+      val N = args(2).toInt
+      val r = args(3).toFloat
+      timeDemo = Some(d, N, r)
+    }
     //UIManager.setLookAndFeel(
       //UIManager.getSystemLookAndFeelClassName())
     super.main(args)
@@ -146,7 +154,7 @@ object Tuner extends SimpleSwingApplication {
     }
   }
 
-  def timeDemo : Unit = {
+  def runFullTimeDemo : Unit = {
     // Close all open projects
     openWindows.foreach {win => win.close}
 
@@ -155,8 +163,14 @@ object Tuner extends SimpleSwingApplication {
     val statusWindow = new TimeDemoStatusWindow
     statusWindow.open
 
-    val runner = new TimeDemoRunner(statusWindow)
-    runner.start
+    Config.timeDemoDims.foreach {d =>
+      Config.timeDemoPoints.foreach {n =>
+        Config.timeDemoRadii.foreach {r =>
+          val runner = new TimeDemoRunner(statusWindow, d, n, r)
+          runner.start
+        }
+      }
+    }
   }
 
   def listenTo(tunerWin:tuner.gui.Window) : Unit = {
