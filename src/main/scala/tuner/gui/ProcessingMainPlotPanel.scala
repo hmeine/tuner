@@ -285,23 +285,17 @@ class ProcessingMainPlotPanel(val project:Viewable)
         if(fld != lastField) {
           val sliceDim = sliceBounds((fld, lastField))
           val axis = resp1XAxes(fld)
-          val ticks = AxisTicks.ticks(low, high, 
-                                      sliceDim.width, 
-                                      Config.smallFontSize)
           axis.draw(this, sliceDim.minX, bottomAxisBounds.minY, 
                           sliceDim.width, bottomAxisBounds.height, 
-                          fld, ticks)
+                          fld, low, high)
         }
         // See if we draw the y axis
         if(fld != firstField) {
           val sliceDim = sliceBounds((firstField, fld))
           val axis = resp1YAxes(fld)
-          val ticks = AxisTicks.ticks(low, high, 
-                                      sliceDim.height, 
-                                      Config.smallFontSize)
           axis.draw(this, leftAxisBounds.minX, sliceDim.minY, 
                           leftAxisBounds.width, sliceDim.height, 
-                          fld, ticks)
+                          fld, low, high)
         }
       }
     }
@@ -313,23 +307,17 @@ class ProcessingMainPlotPanel(val project:Viewable)
         if(fld != lastField) {
           val sliceDim = sliceBounds((lastField, fld))
           val axis = resp2XAxes(fld)
-          val ticks = AxisTicks.ticks(low, high, 
-                                      sliceDim.width, 
-                                      Config.smallFontSize)
           axis.draw(this, sliceDim.minX, topAxisBounds.minY, 
                           sliceDim.width, topAxisBounds.height, 
-                          fld, ticks)
+                          fld, low, high)
         }
         // See if we draw the y axis
         if(fld != firstField) {
           val sliceDim = sliceBounds((fld, firstField))
           val axis = resp2YAxes(fld)
-          val ticks = AxisTicks.ticks(low, high, 
-                                      sliceDim.height, 
-                                      Config.smallFontSize)
           axis.draw(this, rightAxisBounds.minX, sliceDim.minY, 
                           rightAxisBounds.width, sliceDim.height, 
-                          fld, ticks)
+                          fld, low, high)
         }
       }
     }
