@@ -37,7 +37,7 @@ object Tuner extends SimpleSwingApplication {
     System.setProperty("com.apple.mrj.application.growbox.intrudes", "false")
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Tuner")
 
-    if(args(0) == "-timedemo") {
+    if(args.length > 0 && args(0) == "-timedemo") {
       val d = args(1).toInt
       val N = args(2).toInt
       val r = args(3).toFloat
