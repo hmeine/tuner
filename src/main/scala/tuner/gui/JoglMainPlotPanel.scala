@@ -357,9 +357,12 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     val firstField = project.inputFields.head
     val lastField = project.inputFields.last
 
+
     val r1Time = project.viewInfo.response1View match {
       case None     => Nanos(0)
       case Some(r1) => timed {
+        tuner.gui.widgets.OpenGLAxis.points.clear
+
         // See if we draw the x-axis
         if(fld != lastField) {
           val sliceDim = sliceBounds((fld, lastField))
@@ -386,12 +389,16 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
                          screenWidth, screenHeight,
                          fld, ticks)
         }
+
+        tuner.gui.widgets.OpenGLAxis.drawAll(gl2)
       }
     }
 
     val r2Time = project.viewInfo.response2View match {
       case None     => Nanos(0)
       case Some(r2) => timed {
+        tuner.gui.widgets.OpenGLAxis.points.clear
+
         // See if we draw the x-axis
         if(fld != lastField) {
           val sliceDim = sliceBounds((lastField, fld))
@@ -416,6 +423,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
                          screenWidth, screenHeight,
                          fld, ticks)
         }
+
+        tuner.gui.widgets.OpenGLAxis.drawAll(gl2)
       }
     }
 
