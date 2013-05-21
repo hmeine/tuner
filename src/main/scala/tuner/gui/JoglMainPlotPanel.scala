@@ -237,7 +237,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       resp1Time += t1
       resp2Time += t2
   
-      overlay.markDirty(0, 0, 1000, 1000)
+      overlay.markDirty(0, 0, screenWidth, screenHeight)
       overlay.drawAll
   
       // Also get rid of the Java2D graphics
