@@ -25,6 +25,7 @@ import tuner.gui.util.FacetLayout
 import tuner.gui.util.FontLib
 import tuner.gui.widgets.Axis
 import tuner.gui.widgets.Colorbar
+import tuner.gui.widgets.OpenGLAxis
 import tuner.gui.widgets.Widgets
 import tuner.project.Viewable
 import tuner.util.AxisTicks
@@ -50,6 +51,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   // The buffers we're using
   var textureFbo:Option[Int] = None
   var fboTexture:Option[Int] = None
+
+  // An assistant for the axes drawing
+  var glAxis:Option[OpenGLAxis] = None
 
   // This is used for font rendering
   var textRenderer:TextRenderer = null
@@ -146,9 +150,13 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
              "/shaders/cmap.frag.glsl"))
       //println(colormapShader.get.attribIds)
     }
-
     textRenderer = new TextRenderer(
       new java.awt.Font("SansSerif", java.awt.Font.PLAIN, Config.smallFontSize))
+
+    if(!glAxis.isDefined) {
+      glAxis = Some(new OpenGLAxis(gl2, textRenderer))
+    }
+
   }
 
   override def dispose(gl2:GL2) = {
@@ -161,9 +169,15 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     // No more shaders
     gl2.getGL2ES2.glUseProgram(0)
+    valueShaders.foreach {case (_, shader) => shader.dispose}
+    prosectionShaders.foreach {case (_, shader) => shader.dispose}
+    colormapShader.foreach {shader => shader.dispose}
 
     // No more texture
     gl2.glBindTexture(GL.GL_TEXTURE_2D, 0)
+
+    // No more axis drawing helper thing
+    glAxis.foreach {x => x.dispose}
   }
 
   override def reshape(gl2:GL2, x:Int, y:Int, width:Int, height:Int) = {
@@ -376,60 +390,60 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     val r1Time = project.viewInfo.response1View match {
       case None     => Nanos(0)
       case Some(r1) => timed {
-        tuner.gui.widgets.OpenGLAxis.begin(gl2, textRenderer)
+        glAxis.get.begin
 
         // See if we draw the x-axis
         if(fld != lastField) {
           val sliceDim = sliceBounds((fld, lastField))
           val axis = resp1XAxes(fld)
-          axis.draw(gl2, textRenderer, 
-                         sliceDim.minX, bottomAxisBounds.minY,
-                         sliceDim.width, bottomAxisBounds.height,
-                         screenWidth, screenHeight,
-                         fld, low, high)
+          axis.draw(glAxis.get, textRenderer, 
+                    sliceDim.minX, bottomAxisBounds.minY,
+                    sliceDim.width, bottomAxisBounds.height,
+                    screenWidth, screenHeight,
+                    fld, low, high)
         }
         // See if we draw the y-axis
         if(fld != firstField) {
           val sliceDim = sliceBounds((firstField, fld))
           val axis = resp1YAxes(fld)
-          axis.draw(gl2, textRenderer, 
-                         leftAxisBounds.minX, sliceDim.minY,
-                         leftAxisBounds.width, sliceDim.height,
-                         screenWidth, screenHeight,
-                         fld, low, high)
+          axis.draw(glAxis.get, textRenderer, 
+                    leftAxisBounds.minX, sliceDim.minY,
+                    leftAxisBounds.width, sliceDim.height,
+                    screenWidth, screenHeight,
+                    fld, low, high)
         }
 
-        tuner.gui.widgets.OpenGLAxis.end(gl2, textRenderer, 
-                                         screenWidth, screenHeight)
+        glAxis.get.end(screenWidth, screenHeight)
       }
     }
 
     val r2Time = project.viewInfo.response2View match {
       case None     => Nanos(0)
       case Some(r2) => timed {
-        tuner.gui.widgets.OpenGLAxis.begin(gl2, textRenderer)
+        glAxis.get.begin
 
         // See if we draw the x-axis
         if(fld != lastField) {
           val sliceDim = sliceBounds((lastField, fld))
           val axis = resp2XAxes(fld)
-          axis.draw(gl2, textRenderer, sliceDim.minX, topAxisBounds.minY,
-                         sliceDim.width, topAxisBounds.height,
-                         screenWidth, screenHeight,
-                         fld, low, high)
+          axis.draw(glAxis.get, textRenderer, 
+                    sliceDim.minX, topAxisBounds.minY,
+                    sliceDim.width, topAxisBounds.height,
+                    screenWidth, screenHeight,
+                    fld, low, high)
         }
         // See if we draw the y-axis
         if(fld != firstField) {
           val sliceDim = sliceBounds((fld, firstField))
           val axis = resp2YAxes(fld)
-          axis.draw(gl2, textRenderer, rightAxisBounds.minX, sliceDim.minY,
-                         rightAxisBounds.width, sliceDim.height,
-                         screenWidth, screenHeight,
-                         fld, low, high)
+          axis.draw(glAxis.get, textRenderer, 
+                    rightAxisBounds.minX, sliceDim.minY,
+                    rightAxisBounds.width, sliceDim.height,
+                    screenWidth, screenHeight,
+                    fld, low, high)
         }
 
-        tuner.gui.widgets.OpenGLAxis.end(gl2, textRenderer, 
-                                         screenWidth, screenHeight)
+        glAxis.get.end(screenWidth, screenHeight)
       }
     }
 
