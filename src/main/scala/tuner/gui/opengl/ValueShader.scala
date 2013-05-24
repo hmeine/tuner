@@ -214,7 +214,7 @@ class ValueVertexShader(numDims:Int) {
   // Attributes
   %s
   attribute float coeff;
-  attribute vec2 geomOffset;
+  attribute vec2 geomOffset; // This is (-1,1), (1,1), etc
 
   // Uniforms
   uniform float maxSqDist;

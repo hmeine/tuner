@@ -149,14 +149,24 @@ class ProcessingMainPlotPanel(val project:Viewable)
       val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
         (lb, ub, model.theta(f).toFloat)
       }
-      addElipticalTiming(project.numUnclippedPoints, radii, resp1Time)
+      val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
+                                       project.viewInfo.currentZoom)
+      val plotSizes = sliceBounds.head._2.area * 
+                      (project.numDims * (project.numDims - 1) / 2)
+      val pixels = frags * plotSizes
+      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp1Time)
     }
     project.viewInfo.response2View.foreach {r2 =>
       val model = project.gpModels(r2)
       val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
         (lb, ub, model.theta(f).toFloat)
       }
-      addElipticalTiming(project.numUnclippedPoints, radii, resp2Time)
+      val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
+                                       project.viewInfo.currentZoom)
+      val plotSizes = sliceBounds.head._2.area * 
+                      (project.numDims * (project.numDims - 1) / 2)
+      val pixels = frags * plotSizes
+      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp2Time)
     }
 
     // Draw the fps counter

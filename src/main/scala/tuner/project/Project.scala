@@ -450,6 +450,8 @@ class Viewable(config:ProjConfig, val path:String, val designSites:Table)
     count
   }
 
+  def numDims = inputFields.length
+
   /**
    * The number of sample points that are unclipped 
    * by the current zoom level

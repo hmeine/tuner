@@ -24,6 +24,8 @@ class Rectangle(val topLeft:Point, val bottomRight:Point) {
     Point(bottomRight.x / x, bottomRight.y / y)
   )
 
+  def area = width * height
+
   def center : (Float,Float) = (
     (topLeft.x+bottomRight.x) / 2,
     (topLeft.y+bottomRight.y) / 2

@@ -300,7 +300,12 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
         (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
       //println(radii)
-      addElipticalTiming(project.numUnclippedPoints, radii, resp1Time)
+      val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
+                                       project.viewInfo.currentZoom)
+      val plotSizes = sliceBounds.head._2.area * 
+                      (project.numDims * (project.numDims - 1) / 2)
+      val pixels = frags * plotSizes
+      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp1Time)
     }
     project.viewInfo.response2View.foreach {r2 =>
       val model = project.gpModels(r2)
@@ -308,7 +313,12 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
         (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
-      addElipticalTiming(project.numUnclippedPoints, radii, resp2Time)
+      val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
+                                       project.viewInfo.currentZoom)
+      val plotSizes = sliceBounds.head._2.area * 
+                      (project.numDims * (project.numDims - 1) / 2)
+      val pixels = frags * plotSizes
+      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp2Time)
     }
   }
 

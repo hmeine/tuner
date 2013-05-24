@@ -62,7 +62,7 @@ object DrawTimer {
   //val drawTimes = new MutableList[(Int,Iterable[TimingRadii],Timing)]
   lazy val drawTimes = {
     val r = new BufferedWriter(new FileWriter("drawing_times.csv", true))
-    r.write("total points,time (sec),min1,max1,radius1\n")
+    r.write("total points,time (sec),pixels,min1,max1,radius1\n")
     r
   }
 
@@ -106,17 +106,23 @@ object DrawTimer {
   /**
    * add a drawing timing for spherical kernels in (0,1) dimension spaces
    */
-  def addSphericalTiming(totalPoints:Int, radius:Float, dims:Int, time:Timing) =
-    addElipticalTiming(totalPoints, List.fill(dims)((0, 1, radius)), time)
+  def addSphericalTiming(totalPoints:Int, radius:Float, dims:Int, 
+                         pixels:Float, time:Timing) =
+    addElipticalTiming(totalPoints, 
+                       List.fill(dims)((0, 1, radius)), 
+                       pixels, 
+                       time)
 
   /**
    * add a drawing timing for eliptical kernels
    */
   def addElipticalTiming(totalPoints:Int, 
                          radii:Iterable[TimingRadii], 
+                         pixels:Float,
                          time:Timing) = {
     drawTimes.write(totalPoints + ",")
     drawTimes.write(time.toString + ",")
+    drawTimes.write(pixels.toString + ",")
     drawTimes.write(
       radii.map({case (mn,mx,r) => mn + "," + mx + "," + r}).mkString(",")
     )

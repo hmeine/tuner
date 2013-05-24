@@ -148,6 +148,65 @@ class GpModel(val thetas:List[Double], val alphas:List[Double],
     theta * math.pow(math.abs(x1 - x2), alpha)
   }
 
+  def fragmentsDrawn(focusPt:List[(String,Float)], ranges:DimRanges) : Float = {
+    val mapx = focusPt.toMap
+    val xx = dims.map({mapx.get(_)}).flatten.map(_.toDouble).toArray
+    val maxSqDist = -math.log(Config.maxSampleSqDistance)
+    var frags = 0.0
+    for(d1 <- 0 until dims.length) {
+      val rng1 = {
+        val tmp = ranges(dims(d1))
+        (tmp._1.toDouble, tmp._2.toDouble)
+      }
+      for(d2 <- 0 until dims.length) {
+        val rng2 = {
+          val tmp = ranges(dims(d2))
+          (tmp._1.toDouble, tmp._2.toDouble)
+        }
+        // pass
+        for(i <- 0 until design.length) {
+          val pt = design(i)
+          val sqDist = vertexDist(xx, pt, d1, d2)
+          if(sqDist < maxSqDist) {
+            frags += vertexQuadSize(pt, sqDist, d1, d2, rng1, rng2)
+          }
+        }
+      }
+    }
+    frags.toFloat
+  }
+
+  private def vertexQuadSize(pt:Array[Double], sqDist:Double, 
+                             d1:Int, d2:Int,
+                             xRng:(Double,Double), yRng:(Double,Double)) = {
+    val x = pt(d1)
+    val y = pt(d2)
+    val maxExtent = -math.log(Config.maxSampleSqDistance) - sqDist
+    val maxXDist = math.sqrt(maxExtent / thetas(d1))
+    val maxYDist = math.sqrt(maxExtent / thetas(d2))
+    // need to clamp these to data space
+    val minX = math.max(math.min(x - maxXDist, xRng._2), xRng._1)
+    val maxX = math.max(math.min(x + maxXDist, xRng._2), xRng._1)
+    val minY = math.max(math.min(y - maxYDist, yRng._2), yRng._1)
+    val maxY = math.max(math.min(y + maxYDist, yRng._2), yRng._1)
+
+    val normXDist = (maxX - minX) / (xRng._2 - xRng._1)
+    val normYDist = (maxY - minY) / (yRng._2 - yRng._1)
+
+    math.sqrt(normXDist*normXDist + normYDist*normYDist)
+  }
+
+  private def vertexDist(x1:Array[Double], x2:Array[Double], 
+                         d1:Int, d2:Int) = {
+    var sqDist = 0.0
+    for(d <- 0 until x1.length) {
+      if(d != d1 && d != d2) {
+        sqDist += thetas(d) * math.pow(x1(d) - x2(d), 2)
+      }
+    }
+    sqDist
+  }
+
   def gradient(pt:List[(String,Float)]) : List[(String,Float)] = {
     val Epsilon:Float = 1e-9.toFloat
     val outVals = Array.fill(pt.length)(0f)
