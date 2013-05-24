@@ -121,7 +121,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       }
   }
 
-  override def init(gl2:GL2) = {
+  override def init(ggl2:GL2) = {
+    val gl2 = new DebugGL2(ggl2)
+
     // Create the shader programs
     if(valueShaders.isEmpty) {
       valueShaders = project.responseFields.map {resFld =>
@@ -160,7 +162,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
   }
 
-  override def dispose(gl2:GL2) = {
+  override def dispose(ggl2:GL2) = {
+    val gl2 = new DebugGL2(ggl2)
+
     // Make sure there are no remaining errors
     var errCode = gl2.glGetError
     while(errCode != GL.GL_NONE) {
@@ -179,9 +183,18 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     // No more axis drawing helper thing
     glAxis.foreach {x => x.dispose}
+
+    // Get rid of the framebuffer stuff too
+    textureFbo.foreach {fbo => gl2.glDeleteFramebuffers(1, Array(fbo), 0)}
+    textureFbo = None
+
+    fboTexture.foreach {fbo => gl2.glDeleteTextures(1, Array(fbo), 0)}
+    fboTexture = None
   }
 
-  override def reshape(gl2:GL2, x:Int, y:Int, width:Int, height:Int) = {
+  override def reshape(ggl2:GL2, x:Int, y:Int, width:Int, height:Int) = {
+    val gl2 = new DebugGL2(ggl2)
+
     screenWidth = width
     screenHeight = height
 
@@ -199,13 +212,18 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
   def redraw = canvas.display
 
-  def display(gl2:GL2) = {
+  def display(ggl2:GL2) = {
+
+    val gl2 = new DebugGL2(ggl2)
 
     var resp1Time:Timing = 0
     var resp2Time:Timing = 0
 
     // The clear color gets reset by the plot drawings
     val totalTime = timed {
+      gl2.glBindTexture(GL.GL_TEXTURE_2D, 0)
+      gl2.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
+    
       gl2.glClearColor(backgroundColor.r, 
                        backgroundColor.g, 
                        backgroundColor.b, 
@@ -297,7 +315,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   /**
    * Create the texture and framebuffer objects
    */
-  def setupTextureTarget(gl:GL2, texWidth:Int, texHeight:Int) = {
+  def setupTextureTarget(ggl2:GL2, texWidth:Int, texHeight:Int) = {
+    val gl = new DebugGL2(ggl2)
+
     // First setup the overall framebuffer
     if(!textureFbo.isDefined) {
       val fbo = Array(0)
@@ -322,6 +342,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
                       texWidth, texHeight, 0, 
                       GL.GL_BGRA, GL.GL_FLOAT, fakeBuffer)
       //gl.glGenerateMipmap(GL.GL_TEXTURE_2D)
+      println("tex: " + texWidth + " " + texHeight)
     }
   }
 
