@@ -62,7 +62,7 @@ object DrawTimer {
   //val drawTimes = new MutableList[(Int,Iterable[TimingRadii],Timing)]
   lazy val drawTimes = {
     val r = new BufferedWriter(new FileWriter("drawing_times.csv", true))
-    r.write("total points,min1,max1,radius1,time1 (sec)\n")
+    r.write("total points,time (sec),min1,max1,radius1\n")
     r
   }
 
