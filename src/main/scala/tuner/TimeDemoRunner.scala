@@ -10,6 +10,18 @@ import tuner.project.OutputSpecification
 import tuner.project.ProjConfig
 import tuner.project.Viewable
 
+object TimeDemo {
+  val maxDist = -math.log(Config.maxSampleSqDistance)
+
+  def theta2Radius(theta:Float, d:Int) : Float = {
+    math.sqrt(maxDist / theta / d.toFloat).toFloat
+  }
+
+  def radius2Theta(radius:Float, d:Int) : Float = {
+    (maxDist / (radius*radius) / d.toFloat).toFloat
+  }
+}
+
 class TimeDemoRunner(progWindow:TimeDemoStatusWindow, 
                      d:Int, n:Int, r:Float) extends Actor {
   def act = {
@@ -76,8 +88,10 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
       (1 to d).map {dd => tpl("x"+dd)}
     }
     val resps = List.fill(n)(1.0)
-    val maxDist = -math.log(Config.maxSampleSqDistance)
-    val theta = maxDist / (r*r) / d
+    val theta = TimeDemo.radius2Theta(r, d)
+    //val maxDist = -math.log(Config.maxSampleSqDistance)
+    //val theta = maxDist / (r*r) / d
+    println("theta " + theta)
 
     val corMtx = new Jama.Matrix(n, n)
     (0 until n).foreach {i => 

@@ -15,6 +15,7 @@ import tuner.DrawTimer._
 import tuner.EllipseRegion
 import tuner.SpecifiedColorMap
 import tuner.Table
+import tuner.TimeDemo
 import tuner.ViewInfo
 import tuner.geom.Rectangle
 import tuner.gui.opengl.ValueShader
@@ -276,15 +277,18 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     addStaticTiming(staticTime)
     project.viewInfo.response1View.foreach {r1 =>
       val model = project.gpModels(r1)
+      val numDims = model.thetas.length
       val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
-        (lb, ub, math.sqrt(-math.log(0.01) / model.theta(f)).toFloat)
+        (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
+      //println(radii)
       addElipticalTiming(project.numUnclippedPoints, radii, resp1Time)
     }
     project.viewInfo.response2View.foreach {r2 =>
       val model = project.gpModels(r2)
+      val numDims = model.thetas.length
       val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
-        (lb, ub, math.sqrt(-math.log(0.01) / model.theta(f)).toFloat)
+        (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
       addElipticalTiming(project.numUnclippedPoints, radii, resp2Time)
     }
