@@ -89,9 +89,6 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
     }
     val resps = List.fill(n)(1.0)
     val theta = TimeDemo.radius2Theta(r, d)
-    //val maxDist = -math.log(Config.maxSampleSqDistance)
-    //val theta = maxDist / (r*r) / d
-    println("theta " + theta)
 
     val corMtx = new Jama.Matrix(n, n)
     (0 until n).foreach {i => 
