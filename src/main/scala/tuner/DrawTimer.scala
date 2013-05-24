@@ -116,7 +116,7 @@ object DrawTimer {
                          radii:Iterable[TimingRadii], 
                          time:Timing) = {
     drawTimes.write(totalPoints + ",")
-    drawTimes.write(time.toString)
+    drawTimes.write(time.toString + ",")
     drawTimes.write(
       radii.map({case (mn,mx,r) => mn + "," + mx + "," + r}).mkString(",")
     )
