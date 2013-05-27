@@ -7,7 +7,7 @@ import subprocess
 
 # 4500 is max, 5000 is too large
 points = [100] + [x*500 for x in range(1,10)]
-dims = range(3, 11)
+#dims = range(3, 11)
 dims = [4]
 d3_radii = [0.05 + 0.005 * i for i in range(0, 10)] + \
            [0.1 + 0.05 * i for i in range(0, 9)]
@@ -56,6 +56,7 @@ except:
 for d in dims:
   for r3d in d3_radii:
     f = frags_3d(r3d)
-    rr = f2r(f, 3)
+    rr = f2r(f, d)
+    #print f, rr
     run_exp(d, rr)
 
