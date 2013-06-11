@@ -82,7 +82,6 @@ class ProbabilityField(val xSize:Int, val ySize:Int, val numFields:Int) {
 
   def image(applet:PApplet) : PImage = {
     if(myImage == null) {
-      val startTime = System.currentTimeMillis
       val startMax = (Float.MinValue, -1)
       myImage = applet.createImage(xSize, ySize, PConstants.RGB)
       myImage.loadPixels
@@ -98,8 +97,6 @@ class ProbabilityField(val xSize:Int, val ySize:Int, val numFields:Int) {
         }
       }
       myImage.updatePixels
-      val endTime = System.currentTimeMillis
-      //println("Image time: " + (endTime - startTime) + "ms")
     }
     myImage
   }
