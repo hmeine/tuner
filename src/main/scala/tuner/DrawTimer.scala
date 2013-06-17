@@ -62,7 +62,7 @@ object DrawTimer {
   //val drawTimes = new MutableList[(Int,Iterable[TimingRadii],Timing)]
   lazy val drawTimes = {
     val r = new BufferedWriter(new FileWriter("drawing_times.csv", true))
-    r.write("total points,time (sec),pixels,min1,max1,radius1\n")
+    r.write("timestamp,total points,draw time (sec),pixels,min1,max1,radius1\n")
     r
   }
 
@@ -71,7 +71,7 @@ object DrawTimer {
   //val staticTimes = new MutableList[Timing]
   lazy val staticTimes = {
     val r = new BufferedWriter(new FileWriter("static_times.csv", true))
-    r.write("time (sec)\n")
+    r.write("timestamp,static time (sec)\n")
     r
   }
 
@@ -99,6 +99,7 @@ object DrawTimer {
    * add a timing for drawing code that doesn't depend on the response surface
    */
   def addStaticTiming(time:Timing) = {
+    staticTimes.write((new java.util.Date).toString + ",")
     staticTimes.write(time.toString)
     staticTimes.write("\n")
   }
@@ -120,6 +121,7 @@ object DrawTimer {
                          radii:Iterable[TimingRadii], 
                          pixels:Float,
                          time:Timing) = {
+    drawTimes.write((new java.util.Date).toString + ",")
     drawTimes.write(totalPoints + ",")
     drawTimes.write(time.toString + ",")
     drawTimes.write(pixels.toString + ",")
