@@ -2,7 +2,8 @@ package tuner.gui
 
 import com.jogamp.common.nio.Buffers
 import com.jogamp.opengl.util.awt.TextRenderer
-import javax.media.opengl.{GL,GL2,DebugGL2,GL2GL3,GL2ES1}
+import javax.media.opengl.{GL,GL2,DebugGL2,GL2GL3,GL2ES1,GL2ES2}
+import javax.media.opengl.GLAutoDrawable
 import java.awt.Graphics2D
 
 import scala.swing.GL2Panel
@@ -212,7 +213,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
   def redraw = canvas.display
 
-  def display(ggl2:GL2) = {
+  def display(drawable:GLAutoDrawable, ggl2:GL2) = {
 
     val gl2 = new DebugGL2(ggl2)
 
@@ -284,6 +285,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   
       // Also get rid of the Java2D graphics
       j2d.dispose
+      drawable.swapBuffers
+    }
     }
 
     // static time is basically everything not related to the responses

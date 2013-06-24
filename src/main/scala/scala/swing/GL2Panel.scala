@@ -29,14 +29,16 @@ abstract class GL2Panel extends Component with Publisher {
       GL2Panel.this.init(drawable.getGL.getGL2)
     def dispose(drawable:GLAutoDrawable) = 
       GL2Panel.this.dispose(drawable.getGL.getGL2)
-    def display(drawable:GLAutoDrawable) = 
-      GL2Panel.this.display(drawable.getGL.getGL2)
+    def display(drawable:GLAutoDrawable) = {
+      drawable.setAutoSwapBufferMode(false)
+      GL2Panel.this.display(drawable, drawable.getGL.getGL2)
+    }
   })
 
   def init(gl2:GL2) : Unit = {}
   def dispose(gl2:GL2) : Unit = {}
 
-  def display(gl2:GL2) : Unit
+  def display(drawable:GLAutoDrawable, gl2:GL2) : Unit
 
   def reshape(gl2:GL2, x:Int, y:Int, width:Int, height:Int) : Unit = {}
 }
