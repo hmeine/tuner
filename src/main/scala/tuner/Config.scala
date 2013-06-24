@@ -121,7 +121,7 @@ object Config {
     (1 to steps).map {_ * max / steps}
   }
   val timeDemoRepeats = 3
-  val timeDemoFocusChanges = 100
+  val timeDemoFocusChanges = 20
   val timeDemoOutputName = "y"
 }
 
