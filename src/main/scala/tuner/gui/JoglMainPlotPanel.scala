@@ -54,6 +54,12 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   var textureFbo:Option[Int] = None
   var fboTexture:Option[Int] = None
 
+  // A query object for the number of fragments
+  var fragQuery:Option[Int] = None
+
+  // A query object for the GPU timer
+  var timerQuery:Option[Int] = None
+
   // An assistant for the axes drawing
   var glAxis:Option[OpenGLAxis] = None
 
@@ -161,6 +167,20 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       glAxis = Some(new OpenGLAxis(gl2, textRenderer))
     }
 
+    // Initialize the frament query
+    if(!fragQuery.isDefined) {
+      val tmp = Array(0)
+      gl2.glGenQueries(1, tmp, 0)
+      fragQuery = Some(tmp(0))
+    }
+
+    // Initialize the timer query
+    if(!timerQuery.isDefined) {
+      val tmp = Array(0)
+      gl2.glGenQueries(1, tmp, 0)
+      timerQuery = Some(tmp(0))
+    }
+
   }
 
   override def dispose(ggl2:GL2) = {
@@ -191,6 +211,9 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     fboTexture.foreach {fbo => gl2.glDeleteTextures(1, Array(fbo), 0)}
     fboTexture = None
+
+    fragQuery.foreach {fq => gl2.glDeleteQueries(1, Array(fq), 0)}
+    timerQuery.foreach {tq => gl2.glDeleteQueries(1, Array(tq), 0)}
   }
 
   override def reshape(ggl2:GL2, x:Int, y:Int, width:Int, height:Int) = {
@@ -222,6 +245,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     // The clear color gets reset by the plot drawings
     val totalTime = timed {
+      gl2.glBeginQuery(GL2GL3.GL_TIME_ELAPSED, timerQuery.get)
+
       gl2.glBindTexture(GL.GL_TEXTURE_2D, 0)
       gl2.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
     
@@ -272,7 +297,10 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       }
   
       // Draw the responses
+      gl2.glBeginQuery(GL2GL3.GL_SAMPLES_PASSED, fragQuery.get)
       val (t1, t2) = drawResponses(gl2, j2d)
+      gl2.glEndQuery(GL2GL3.GL_SAMPLES_PASSED)
+
       resp1Time += t1
       resp2Time += t2
 
@@ -285,9 +313,21 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   
       // Also get rid of the Java2D graphics
       j2d.dispose
+
+      gl2.glEndQuery(GL2GL3.GL_TIME_ELAPSED)
+      gl2.glFinish
       drawable.swapBuffers
     }
+
+    // Get all the queries
+    val outTime = Array(0L)
+    var stopOk = Array(0)
+    while(stopOk(0) == 0) {
+      gl2.glGetQueryObjectiv(timerQuery.get, GL2ES2.GL_QUERY_RESULT_AVAILABLE, stopOk, 0)
     }
+    gl2.glGetQueryObjectui64v(timerQuery.get, GL2ES2.GL_QUERY_RESULT, outTime, 0)
+    val outFrags = Array(0L)
+    gl2.glGetQueryObjectui64v(fragQuery.get, GL2ES2.GL_QUERY_RESULT, outFrags, 0)
 
     // static time is basically everything not related to the responses
     // which includes checking if we need to draw one of the responses
@@ -295,7 +335,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     //println("ttl: " + totalTime + " stat: " + staticTime + " r1: " + resp1Time + " r2: " + resp2Time)
 
     // Add a timing result
-    addStaticTiming(staticTime)
+    //addStaticTiming(staticTime)
+    addStaticTiming(Nanos(outTime(0)))
     project.viewInfo.response1View.foreach {r1 =>
       val model = project.gpModels(r1)
       val numDims = model.thetas.length
@@ -303,25 +344,20 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
         (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
       //println(radii)
+      /*
       val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
                                        project.viewInfo.currentZoom)
       val plotSizes = sliceBounds.head._2.area * 
                       (project.numDims * (project.numDims - 1) / 2)
       val pixels = frags * plotSizes
-      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp1Time)
-    }
-    project.viewInfo.response2View.foreach {r2 =>
-      val model = project.gpModels(r2)
-      val numDims = model.thetas.length
-      val radii = project.viewInfo.currentZoom.map {case (f,(lb,ub)) =>
-        (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
-      }
-      val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
-                                       project.viewInfo.currentZoom)
-      val plotSizes = sliceBounds.head._2.area * 
-                      (project.numDims * (project.numDims - 1) / 2)
-      val pixels = frags * plotSizes
-      addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp2Time)
+      */
+      //println("my frags: " + frags + " px: " + pixels)
+      //addElipticalTiming(project.numUnclippedPoints, radii, out(0), resp1Time)
+      //addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp1Time)
+      addElipticalTiming(project.numUnclippedPoints, radii, outFrags(0), totalTime)
+      //println(pixels + "," + out(0))
+      //addElipticalTiming(project.numUnclippedPoints, radii, 
+                         //resp1Frags, resp1Time)
     }
   }
 
