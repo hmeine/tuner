@@ -44,15 +44,15 @@ object DrawTimer {
       Nanos(x1 - x2)
     }
 
-    def toSeconds:Float
+    def toSeconds:Double
 
     override def toString = toSeconds.toString
   }
   case class Millis(m:Long) extends Timing {
-    def toSeconds = m / 1e3f
+    def toSeconds = m / 1e3d
   }
   case class Nanos(n:Long) extends Timing {
-    def toSeconds = n / 1e9f
+    def toSeconds = n / 1e9d
   }
 
   // A tuple of type (lower dim bound, upper dim bound, radius)
@@ -88,12 +88,12 @@ object DrawTimer {
     time
   }
 
+  def timed(block: => Unit) : Timing = timed(false)(block)
+
   def saveAll = {
     drawTimes.close
     staticTimes.close
   }
-
-  def timed(block: => Unit) : Timing = timed(false)(block)
 
   /**
    * add a timing for drawing code that doesn't depend on the response surface
