@@ -91,9 +91,10 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
     val theta = TimeDemo.radius2Theta(r, d)
 
     val corMtx = new Jama.Matrix(n, n)
-    (0 until n).foreach {i => 
+    val nrange = new scala.collection.parallel.immutable.ParRange(0 until n)
+    nrange.foreach {i => 
       val xx1 = (1 to d).map {dd => samples.tuple(i)("x"+dd)}
-      (0 until n).foreach {j =>
+      nrange.foreach {j =>
         val xx2 = (1 to d).map {dd => samples.tuple(j)("x"+dd)}
         val dist = xx1.zip(xx2).map({case (x1,x2) => math.pow(x1-x2, 2)}).sum
         // we can cheat because theta is constant across dimensions
