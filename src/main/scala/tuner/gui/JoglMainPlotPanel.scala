@@ -139,7 +139,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
             gl2, project.inputFields.size, 
             "/shaders/est.plot.frag.glsl",
             model.mean, model.sig2,
-            model.thetas.toArray,
+            model.thetas,
             model.design, model.corrResponses)
         //println(estShader.attribIds)
         (resFld -> estShader)

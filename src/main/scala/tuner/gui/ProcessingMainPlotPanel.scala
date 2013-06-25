@@ -143,6 +143,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
     */
 
     // Add a timing result
+    /*
     addStaticTiming(staticTime)
     project.viewInfo.response1View.foreach {r1 =>
       val model = project.gpModels(r1)
@@ -168,6 +169,7 @@ class ProcessingMainPlotPanel(val project:Viewable)
       val pixels = frags * plotSizes
       addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp2Time)
     }
+    */
 
     // Draw the fps counter
     //drawRenderTime(endTime-startTime)
