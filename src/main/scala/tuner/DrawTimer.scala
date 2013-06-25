@@ -90,6 +90,19 @@ object DrawTimer {
 
   def timed(block: => Unit) : Timing = timed(false)(block)
 
+  def printTime[R](name:String)(block: => R) : R = {
+    val startTime = System.nanoTime
+    val x:R = block
+    val endTime = System.nanoTime
+    val time = Nanos(endTime-startTime)
+    if(name != "") {
+      println(name + ": " + time + " sec")
+    } else {
+      println(time + " sec")
+    }
+    x
+  }
+
   def saveAll = {
     drawTimes.close
     staticTimes.close
