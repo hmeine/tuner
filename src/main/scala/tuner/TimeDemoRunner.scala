@@ -3,6 +3,8 @@ package tuner
 import scala.actors.Actor
 import scala.actors.Actor._
 
+import org.jblas.DoubleMatrix
+
 import tuner.gui.TimeDemoStatusWindow
 import tuner.gui.ProjectViewer
 import tuner.project.InputSpecification
@@ -90,7 +92,7 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
     val resps = List.fill(n)(1.0)
     val theta = TimeDemo.radius2Theta(r, d)
 
-    val corMtx = new Jama.Matrix(n, n)
+    val corMtx = DoubleMatrix.zeros(n, n)
     val nrange = new scala.collection.parallel.immutable.ParRange(0 until n)
     nrange.foreach {i => 
       val xx1 = (1 to d).map {dd => samples.tuple(i)("x"+dd)}
@@ -98,10 +100,10 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
         val xx2 = (1 to d).map {dd => samples.tuple(j)("x"+dd)}
         val dist = xx1.zip(xx2).map({case (x1,x2) => math.pow(x1-x2, 2)}).sum
         // we can cheat because theta is constant across dimensions
-        corMtx.set(i, j, math.exp(-d*theta * dist))
+        corMtx.put(i, j, math.exp(-d*theta * dist))
       }
     }
-    val invCorMtx = corMtx.inverse
+    val invCorMtx = org.jblas.Solve.solvePositive(corMtx, DoubleMatrix.eye(n))
 
     GpSpecification(
       responseDim = Config.timeDemoOutputName,
@@ -112,7 +114,7 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
       sigma2 = 1.0,
       designMatrix = design.map {r => r.map(_.toDouble) toList} toList,
       responses = resps,
-      invCorMtx.getArray.map {_.toList} toList)
+      invCorMtx.toArray2.map {_.toList} toList)
   }
 
   def randomSamples(d:Int, n:Int) : Table = {
