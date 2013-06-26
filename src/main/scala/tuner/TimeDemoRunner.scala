@@ -3,7 +3,7 @@ package tuner
 import scala.actors.Actor
 import scala.actors.Actor._
 
-import org.jblas.DoubleMatrix
+import org.jblas.{DoubleMatrix,FloatMatrix}
 
 import tuner.gui.ProjectViewer
 import tuner.project.InputSpecification
@@ -79,21 +79,26 @@ class TimeDemoRunner(d:Int, n:Int, r:Float) extends Actor {
   def fakeGpModel(samples:Table, r:Float) : GpSpecification = {
     val d = samples.numFields - 1
     val n = samples.numRows
-    val design = samples.data.map {tpl =>
-      (1 to d).map {dd => tpl("x"+dd)}
+    val design = new DoubleMatrix(n, d)
+    samples.data.zipWithIndex.foreach {case (tpl, r) =>
+      (1 to d).foreach {dd => design.put(r, dd-1, tpl("x"+dd))}
     }
     val resps = List.fill(n)(1.0)
     val theta = TimeDemo.radius2Theta(r, d)
 
     val corMtx = DoubleMatrix.zeros(n, n)
-    val nrange = new scala.collection.parallel.immutable.ParRange(0 until n)
-    nrange.foreach {i => 
-      val xx1 = (1 to d).map {dd => samples.tuple(i)("x"+dd)}
-      nrange.foreach {j =>
-        val xx2 = (1 to d).map {dd => samples.tuple(j)("x"+dd)}
-        val dist = xx1.zip(xx2).map({case (x1,x2) => math.pow(x1-x2, 2)}).sum
+    val rng1 = new scala.collection.parallel.immutable.ParRange(0 until n)
+    rng1.foreach {i => 
+      val xx1 = design.getRow(i)
+      val rng2 = new scala.collection.parallel.immutable.ParRange(i until n)
+      rng2.foreach {j =>
+        val xx2 = design.getRow(j)
+        val dist = xx1.squaredDistance(xx2)
         // we can cheat because theta is constant across dimensions
-        corMtx.put(i, j, math.exp(-d*theta * dist))
+        val scaleDist = -d * theta * dist
+        val corr = math.exp(scaleDist)
+        corMtx.put(i, j, corr)
+        corMtx.put(j, i, corr)
       }
     }
     val invCorMtx = org.jblas.Solve.solvePositive(corMtx, DoubleMatrix.eye(n))
@@ -105,7 +110,7 @@ class TimeDemoRunner(d:Int, n:Int, r:Float) extends Actor {
       alphas = List.fill(d)(2.0),
       mean = 0.0,
       sigma2 = 1.0,
-      designMatrix = design.map {r => r.map(_.toDouble) toList} toList,
+      designMatrix = design.toArray2.map {_.toList} toList,
       responses = resps,
       invCorMtx.toArray2.map {_.toList} toList)
   }
