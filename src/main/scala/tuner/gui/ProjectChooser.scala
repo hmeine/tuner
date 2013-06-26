@@ -34,9 +34,7 @@ object ProjectChooser extends Frame {
   centerOnScreen
 
   Tuner.timeDemo.foreach {case (d, n, r) =>
-    val statusWindow = new TimeDemoStatusWindow
-    statusWindow.open
-    val tdr = new TimeDemoRunner(statusWindow, d, n, r)
+    val tdr = new TimeDemoRunner(d, n, r)
     (1 to Config.timeDemoRepeats).foreach {i =>
       tdr.runProject(d, n, r, i)
     }

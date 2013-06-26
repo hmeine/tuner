@@ -5,7 +5,6 @@ import scala.actors.Actor._
 
 import org.jblas.DoubleMatrix
 
-import tuner.gui.TimeDemoStatusWindow
 import tuner.gui.ProjectViewer
 import tuner.project.InputSpecification
 import tuner.project.OutputSpecification
@@ -24,8 +23,7 @@ object TimeDemo {
   }
 }
 
-class TimeDemoRunner(progWindow:TimeDemoStatusWindow, 
-                     d:Int, n:Int, r:Float) extends Actor {
+class TimeDemoRunner(d:Int, n:Int, r:Float) extends Actor {
   def act = {
     (1 to Config.timeDemoRepeats).foreach {i =>
       runProject(d, n, r, i)
@@ -33,11 +31,6 @@ class TimeDemoRunner(progWindow:TimeDemoStatusWindow,
   }
 
   def runProject(d:Int, n:Int, r:Float, i:Int) = {
-    progWindow.dim = d
-    progWindow.point = n
-    progWindow.radius = r
-    progWindow.trial = i
-
     val samples = randomSamples(d, n)
     val projConfig = ProjConfig(
       name = "d: %d n: %d r: %f i: %d".format(d, n, r, i),

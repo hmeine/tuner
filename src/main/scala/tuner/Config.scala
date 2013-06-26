@@ -113,13 +113,6 @@ object Config {
   val sampleLineWidth = 2f
 
   // Values to run for the time demo
-  val timeDemoDims = 3 to 8
-  val timeDemoPoints = (10 to 20).map {math.pow(2, _) toInt}
-  val timeDemoRadii = {
-    val steps = 20
-    val max = 0.5f
-    (1 to steps).map {_ * max / steps}
-  }
   val timeDemoRepeats = 3
   val timeDemoFocusChanges = 20
   val timeDemoOutputName = "y"

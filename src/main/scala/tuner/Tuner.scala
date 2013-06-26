@@ -17,7 +17,6 @@ import tuner.gui.ProjectChooser
 import tuner.gui.ProjectViewer
 import tuner.gui.ResponseSelector
 import tuner.gui.SamplingProgressBar
-import tuner.gui.TimeDemoStatusWindow
 import tuner.gui.WindowMenu
 import tuner.gui.R.InstallPackageDialog
 import tuner.gui.R.RNotInstalledDialog
@@ -151,24 +150,6 @@ object Tuner extends SimpleSwingApplication {
         val path = fc.selectedFile.getAbsolutePath
         project.save(path)
       case _ =>
-    }
-  }
-
-  def runFullTimeDemo : Unit = {
-    // Close all open projects
-    openWindows.foreach {win => win.close}
-
-    // Set up for the time demo
-    val statusWindow = new TimeDemoStatusWindow
-    statusWindow.open
-
-    Config.timeDemoDims.foreach {d =>
-      Config.timeDemoPoints.foreach {n =>
-        Config.timeDemoRadii.foreach {r =>
-          val runner = new TimeDemoRunner(statusWindow, d, n, r)
-          runner.start
-        }
-      }
     }
   }
 
