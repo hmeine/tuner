@@ -35,7 +35,7 @@ object ProjectChooser extends Frame {
 
   Tuner.timeDemo.foreach {case (d, n, r) =>
     val tdr = new TimeDemoRunner(d, n, r)
-    (1 to Config.timeDemoRepeats).foreach {i =>
+    (1 to Config.timeDemoDatasets).foreach {i =>
       tdr.runProject(d, n, r, i)
     }
     DrawTimer.saveAll
