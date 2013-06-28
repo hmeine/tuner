@@ -113,8 +113,8 @@ object Config {
   val sampleLineWidth = 2f
 
   // Values to run for the time demo
-  val timeDemoFocusChanges = 20
   val timeDemoDatasets = 3
+  val timeDemoFocusChanges = 21
   val timeDemoOutputName = "y"
 }
 
