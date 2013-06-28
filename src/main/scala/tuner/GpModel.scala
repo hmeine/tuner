@@ -160,7 +160,6 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
     theta * math.pow(math.abs(x1 - x2), alpha)
   }
 
-  /*
   def fragmentsDrawn(focusPt:List[(String,Float)], ranges:DimRanges) : Float = {
     val mapx = focusPt.toMap
     val xx = dims.map({mapx.get(_)}).flatten.map(_.toDouble).toArray
@@ -177,8 +176,8 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
           (tmp._1.toDouble, tmp._2.toDouble)
         }
         // pass
-        for(i <- 0 until design.length) {
-          val pt = design(i)
+        for(i <- 0 until design.rows) {
+          val pt = design.getRow(i).toArray
           val sqDist = vertexDist(xx, pt, d1, d2)
           if(sqDist < maxSqDist) {
             frags += vertexQuadSize(pt, sqDist, d1, d2, rng1, rng2)
@@ -214,12 +213,11 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
     var sqDist = 0.0
     for(d <- 0 until x1.length) {
       if(d != d1 && d != d2) {
-        sqDist += thetas(d) * math.pow(x1(d) - x2(d), 2)
+        sqDist += thetas.get(d) * math.pow(x1(d) - x2(d), 2)
       }
     }
     sqDist
   }
-  */
 
   def gradient(pt:List[(String,Float)]) : List[(String,Float)] = {
     val Epsilon:Float = 1e-9.toFloat

@@ -55,7 +55,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
   var fboTexture:Option[Int] = None
 
   // A query object for the number of fragments
-  var fragQuery:Option[Int] = None
+  //var fragQuery:Option[Int] = None
 
   // A query object for the GPU timer
   var timerQuery:Option[Int] = None
@@ -168,11 +168,13 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     }
 
     // Initialize the frament query
+    /*
     if(!fragQuery.isDefined) {
       val tmp = Array(0)
       gl2.glGenQueries(1, tmp, 0)
       fragQuery = Some(tmp(0))
     }
+    */
 
     // Initialize the timer query
     if(!timerQuery.isDefined) {
@@ -212,7 +214,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
     fboTexture.foreach {fbo => gl2.glDeleteTextures(1, Array(fbo), 0)}
     fboTexture = None
 
-    fragQuery.foreach {fq => gl2.glDeleteQueries(1, Array(fq), 0)}
+    //fragQuery.foreach {fq => gl2.glDeleteQueries(1, Array(fq), 0)}
     timerQuery.foreach {tq => gl2.glDeleteQueries(1, Array(tq), 0)}
   }
 
@@ -297,9 +299,12 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       }
   
       // Draw the responses
-      gl2.glBeginQuery(GL2GL3.GL_SAMPLES_PASSED, fragQuery.get)
+      //val sba = Array(0)
+      //gl2.glGetIntegerv(GL.GL_SAMPLE_BUFFERS, sba, 0)
+      //println("buffs " + sba(0))
+      //gl2.glBeginQuery(GL2GL3.GL_SAMPLES_PASSED, fragQuery.get)
       val (t1, t2) = drawResponses(gl2, j2d)
-      gl2.glEndQuery(GL2GL3.GL_SAMPLES_PASSED)
+      //gl2.glEndQuery(GL2GL3.GL_SAMPLES_PASSED)
 
       resp1Time += t1
       resp2Time += t2
@@ -326,8 +331,14 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
       gl2.glGetQueryObjectiv(timerQuery.get, GL2ES2.GL_QUERY_RESULT_AVAILABLE, stopOk, 0)
     }
     gl2.glGetQueryObjectui64v(timerQuery.get, GL2ES2.GL_QUERY_RESULT, outTime, 0)
+    /*
     val outFrags = Array(0L)
+    stopOk = Array(0)
+    while(stopOk(0) == 0) {
+      gl2.glGetQueryObjectiv(fragQuery.get, GL2ES2.GL_QUERY_RESULT_AVAILABLE, stopOk, 0)
+    }
     gl2.glGetQueryObjectui64v(fragQuery.get, GL2ES2.GL_QUERY_RESULT, outFrags, 0)
+    */
 
     // static time is basically everything not related to the responses
     // which includes checking if we need to draw one of the responses
@@ -344,17 +355,14 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
         (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
       //println(radii)
-      /*
       val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
                                        project.viewInfo.currentZoom)
-      val plotSizes = sliceBounds.head._2.area * 
-                      (project.numDims * (project.numDims - 1) / 2)
-      val pixels = frags * plotSizes
-      */
+
       //println("my frags: " + frags + " px: " + pixels)
       //addElipticalTiming(project.numUnclippedPoints, radii, out(0), resp1Time)
-      //addElipticalTiming(project.numUnclippedPoints, radii, pixels, resp1Time)
-      addElipticalTiming(project.numUnclippedPoints, radii, outFrags(0), totalTime)
+      addElipticalTiming(project.numUnclippedPoints, radii, frags, resp1Time)
+      //addElipticalTiming(project.numUnclippedPoints, radii, outFrags(0), totalTime)
+      //addElipticalTiming(project.numUnclippedPoints, radii, pixels, totalTime)
       //println(pixels + "," + out(0))
       //addElipticalTiming(project.numUnclippedPoints, radii, 
                          //resp1Frags, resp1Time)
