@@ -63,6 +63,11 @@ class TimeDemoRunner(d:Int, n:Int, r:Float) {
       val newVal = sliders("x"+randDim).value + randAmt
       if(newVal > 1) sliders("x"+randDim).value = newVal - 1
       else           sliders("x"+randDim).value = newVal
+
+      // One redraw will be triggered from the above slider move
+      (1 until Config.timeDemoRedraws).foreach {_ =>
+        projWindow.mainPlotPanel.redraw
+      }
     }
 
     projWindow.close
