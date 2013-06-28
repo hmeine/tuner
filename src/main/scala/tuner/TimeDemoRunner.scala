@@ -1,8 +1,5 @@
 package tuner
 
-import scala.actors.Actor
-import scala.actors.Actor._
-
 import org.jblas.{DoubleMatrix,FloatMatrix}
 
 import tuner.gui.ProjectViewer
@@ -23,12 +20,7 @@ object TimeDemo {
   }
 }
 
-class TimeDemoRunner(d:Int, n:Int, r:Float) extends Actor {
-  def act = {
-    (1 to Config.timeDemoRepeats).foreach {i =>
-      runProject(d, n, r, i)
-    }
-  }
+class TimeDemoRunner(d:Int, n:Int, r:Float) {
 
   def runProject(d:Int, n:Int, r:Float, i:Int) = {
     val samples = randomSamples(d, n)
