@@ -347,7 +347,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     // Add a timing result
     //addStaticTiming(staticTime)
-    addStaticTiming(Nanos(outTime(0)))
+    //addStaticTiming(Nanos(outTime(0)))
     project.viewInfo.response1View.foreach {r1 =>
       val model = project.gpModels(r1)
       val numDims = model.thetas.length
@@ -359,13 +359,8 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
                                        project.viewInfo.currentZoom)
 
       //println("my frags: " + frags + " px: " + pixels)
-      //addElipticalTiming(project.numUnclippedPoints, radii, out(0), resp1Time)
-      addElipticalTiming(project.numUnclippedPoints, radii, frags, resp1Time)
-      //addElipticalTiming(project.numUnclippedPoints, radii, outFrags(0), totalTime)
-      //addElipticalTiming(project.numUnclippedPoints, radii, pixels, totalTime)
-      //println(pixels + "," + out(0))
-      //addElipticalTiming(project.numUnclippedPoints, radii, 
-                         //resp1Frags, resp1Time)
+      addElipticalTiming(project.numUnclippedPoints, radii, frags, 
+                         resp1Time, Nanos(outTime(0)))
     }
   }
 
