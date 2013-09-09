@@ -115,7 +115,7 @@ object Config {
   // Values to run for the time demo
   val timeDemoDatasets = 3
   val timeDemoFocusChanges = 21
-  val timeDemoRedraws = 10
+  val timeDemoRedraws = 5
   val timeDemoOutputName = "y"
 }
 
