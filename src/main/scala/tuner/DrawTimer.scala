@@ -75,6 +75,24 @@ object DrawTimer {
     r
   }
 
+  /*
+  lazy val outProcs = new BufferedWriter(new FileWriter("proc_list.out", true))
+  lazy val outTemps = {
+    val r = new BufferedWriter(new FileWriter("temp_list.csv", true))
+    val temps = new ProcessBuilder("/Applications/TemperatureMonitor.app/Contents/MacOS/tempmonitor", "-c", "-th").start
+    temps.waitFor
+    val tempList = new java.io.BufferedReader(new java.io.InputStreamReader(temps.getInputStream))
+    var line:String = null
+    line = tempList.readLine
+    while(line != null) {
+      r.write(line + "\n")
+      line = tempList.readLine
+    }
+    r
+  }
+  lazy val outScreen = new BufferedWriter(new FileWriter("screen_list.out", true))
+  */
+
   /**
    * A utility function to return the time to run a block of code
    */
@@ -106,6 +124,11 @@ object DrawTimer {
   def saveAll = {
     drawTimes.close
     staticTimes.close
+    /*
+    outProcs.close
+    outTemps.close
+    outScreen.close
+    */
   }
 
   /**
@@ -150,6 +173,44 @@ object DrawTimer {
       radii.map({case (mn,mx,r) => mn + "," + mx + "," + r}).mkString(",")
     )
     drawTimes.write("\n")
+
+    // Write out a ps trace
+    /*
+    val ps = new ProcessBuilder("ps", "-Av").start
+    ps.waitFor
+    val procList = new java.io.BufferedReader(new java.io.InputStreamReader(ps.getInputStream))
+    var line:String = null
+    line = procList.readLine
+    while(line != null) {
+      val outLine = ts.toString + " " + line
+      outProcs.write(outLine + "\n")
+      line = procList.readLine
+    }
+    */
+
+    /*
+    // Also write out the current machine temps
+    var line:String = null
+    val temps = new ProcessBuilder("/Applications/TemperatureMonitor.app/Contents/MacOS/tempmonitor", "-c", "-tv").start
+    temps.waitFor
+    val tempList = new java.io.BufferedReader(new java.io.InputStreamReader(temps.getInputStream))
+    line = tempList.readLine
+    while(line != null) {
+      outTemps.write(line + "\n")
+      line = tempList.readLine
+    }
+
+    // Also write out whether the screen is awake or not
+    val screen = new ProcessBuilder("/Users/tom/Projects/tuner.dev/screensleep.sh").start
+    screen.waitFor
+    val screenInfo = new java.io.BufferedReader(new java.io.InputStreamReader(screen.getInputStream))
+    line = screenInfo.readLine
+    while(line != null) {
+      val outLine = ts.toString + " " + line
+      outScreen.write(outLine + "\n")
+      line = screenInfo.readLine
+    }
+    */
   }
 
 }
