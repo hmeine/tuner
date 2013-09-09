@@ -30,6 +30,10 @@ libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 
 libraryDependencies += "org.japura" % "japura" % "1.15.1" from "http://downloads.sourceforge.net/project/japura/Japura/Japura%20v1.15.1/japura-1.15.1.jar"
 
+libraryDependencies += "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "1.6.1" % "test"
+
 scalacOptions := Seq("-deprecation", "-unchecked")
 
 javacOptions := Seq("-Xlint:deprecation")
