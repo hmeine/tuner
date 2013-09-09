@@ -65,12 +65,15 @@ trait MainPlotPanel extends Publisher {
                                         false)
       // TODO: fix the max gain calculation!
       val maxGain = {
+        /*
         val gain = model.maxGain(project.inputs) / 4
         if(gain.equals(Float.NaN)) {
           1f
         } else {
           gain
         }
+        */
+        1f
       }
       val gainCm = new SpecifiedColorMap(Config.gainColorMap, 0f, 
                                          maxGain, false)
