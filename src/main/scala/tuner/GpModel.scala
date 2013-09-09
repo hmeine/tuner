@@ -198,7 +198,7 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
         val tmp = ranges(dims(d1))
         (tmp._1.toDouble, tmp._2.toDouble)
       }
-      for(d2 <- 0 until dims.length) {
+      for(d2 <- (d1+1) until dims.length) {
         val rng2 = {
           val tmp = ranges(dims(d2))
           (tmp._1.toDouble, tmp._2.toDouble)
@@ -225,15 +225,20 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
     val maxXDist = math.sqrt(maxExtent / thetas.get(d1))
     val maxYDist = math.sqrt(maxExtent / thetas.get(d2))
     // need to clamp these to data space
+    //println(maxXDist + " " + maxYDist + " " + xRng._1 + " " + xRng._2 + " " + yRng._1 + " " + yRng._2 + " " + x + " " + y)
     val minX = math.max(math.min(x - maxXDist, xRng._2), xRng._1)
     val maxX = math.max(math.min(x + maxXDist, xRng._2), xRng._1)
     val minY = math.max(math.min(y - maxYDist, yRng._2), yRng._1)
     val maxY = math.max(math.min(y + maxYDist, yRng._2), yRng._1)
+    //println(minX + " " + maxX + " " + minY + " " + maxY)
 
     val normXDist = (maxX - minX) / (xRng._2 - xRng._1)
     val normYDist = (maxY - minY) / (yRng._2 - yRng._1)
+    //println(normXDist + " " + normYDist)
 
-    math.sqrt(normXDist*normXDist + normYDist*normYDist)
+    //println("qs: " + (normXDist * normYDist))
+    //math.sqrt(normXDist*normXDist + normYDist*normYDist)
+    normXDist * normYDist
   }
 
   private def vertexDist(x1:Array[Double], x2:Array[Double], 
