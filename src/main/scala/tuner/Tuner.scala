@@ -27,9 +27,12 @@ import tuner.project._
  */
 object Tuner extends SimpleSwingApplication {
 
+  var imgNum = 0
   var timeDemo:Option[(Int,Int,Float)] = None
 
   override def main(args:Array[String]) = {
+    //scala.util.Random.setSeed(0)
+
     // Set up the menu bar for a mac
     System.setProperty("apple.laf.useScreenMenuBar", "true")
     System.setProperty("apple.awt.showGrowBox", "true")
