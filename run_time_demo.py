@@ -5,12 +5,16 @@ import math
 import shutil
 import subprocess
 
-# 4500 is max, 5000 is too large
+# this is inclusive of the max!
+def float_seq(mn, mx, steps):
+  step_size = (mx-mn) / steps
+  return [mn + step_size*i for i in range(steps+1)]
+
+
+# 4500 is max, 5000 is too large for memory sometimes
 points = [100] + [x*500 for x in range(1,10)]
-#dims = range(3, 11)
-dims = [4]
-d3_radii = [0.05 + 0.005 * i for i in range(0, 10)] + \
-           [0.1 + 0.05 * i for i in range(0, 9)]
+dims = range(3, 11)
+d3_radii = float_seq(0.05, 0.5, 20)
 
 def sphere_vol(n, r):
   p = math.pow(math.pi, n/2.0)
@@ -37,26 +41,33 @@ def f2r(f, d):
                                    stderr=devnull)
   return float(output)
 
-def run_exp(dd, rr):
-  for N in points:
-    print "d:", dd, "p:", N, "r:", rr
-    cmd = "run -timedemo %s %s %s" % (dd, N, rr)
-    if os.name != 'nt':
-      ret = os.system('sbt "' + cmd + '"')
-    else:
-      ret = os.system('sbt "' + cmd + '"')
-    if ret != 0: break
+def run_exp(dd, N, rr):
+  print "d:", dd, "p:", N, "r:", rr
+  cmd = "run -timedemo %s %s %s" % (dd, N, rr)
+  if os.name != 'nt':
+    ret = os.system('sbt "' + cmd + '"')
+  else:
+    ret = os.system('sbt "' + cmd + '"')
+  os.system("cat gcevents.log >> gc_events.out")
+  if ret != 0: exit()
 
-try:
-  shutil.move('static_times.csv', 'static_times.csv.old')
-  shutil.move('drawing_times.csv', 'drawing_times.csv.old')
-except:
-  pass
-
-for d in dims:
-  for r3d in d3_radii:
-    f = frags_3d(r3d)
-    rr = f2r(f, d)
-    #print f, rr
-    run_exp(d, rr)
-
+def mv(src, dst):
+  try:
+    shutil.move(src, dst)
+  except:
+    pass
+    
+if __name__=='__main__':
+  mv('all_times.csv', 'all_times.csv.old')
+  mv('proc_list.out', 'proc_list.out.old')
+  mv('temp_list.out', 'temp_list.out.old')
+  mv('gc_events.out', 'gc_events.out.old')
+  mv('screen_list.out', 'screen_list.out.old')
+  
+  for d in dims:
+    for r3d in d3_radii:
+      f = frags_3d(r3d)
+      rr = f2r(f, d)
+      for N in points:
+        run_exp(d, N, rr)
+  
