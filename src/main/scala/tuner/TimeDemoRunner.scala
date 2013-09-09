@@ -20,7 +20,7 @@ object TimeDemo {
   }
 }
 
-class TimeDemoRunner(d:Int, n:Int, r:Float) {
+object TimeDemoRunner {
 
   def runProject(d:Int, n:Int, r:Float, i:Int) = {
     val samples = randomSamples(d, n)
@@ -68,6 +68,7 @@ class TimeDemoRunner(d:Int, n:Int, r:Float) {
       (1 until Config.timeDemoRedraws).foreach {_ =>
         projWindow.mainPlotPanel.redraw
       }
+
     }
 
     projWindow.close
