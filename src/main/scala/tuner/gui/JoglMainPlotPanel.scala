@@ -342,7 +342,7 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
 
     // static time is basically everything not related to the responses
     // which includes checking if we need to draw one of the responses
-    val staticTime = totalTime - resp1Time - resp2Time    
+    //val staticTime = totalTime - resp1Time - resp2Time    
     //println("ttl: " + totalTime + " stat: " + staticTime + " r1: " + resp1Time + " r2: " + resp2Time)
 
     // Add a timing result
@@ -355,13 +355,23 @@ class JoglMainPlotPanel(val project:Viewable) extends GL2Panel
         (lb, ub, TimeDemo.theta2Radius(model.theta(f).toFloat, numDims))
       }
       //println(radii)
+      val pointsPassed = model.pointsPassed(
+        project.viewInfo.currentSlice.toList,
+        project.viewInfo.currentZoom)
       val frags = model.fragmentsDrawn(project.viewInfo.currentSlice.toList, 
                                        project.viewInfo.currentZoom)
 
       //println("my frags: " + frags + " px: " + pixels)
-      addElipticalTiming(project.numUnclippedPoints, radii, frags, 
-                         resp1Time, Nanos(outTime(0)))
+      addElipticalTiming(gl2.glGetString(GL.GL_VENDOR),
+                         project.numUnclippedPoints, radii, 
+                         pointsPassed, frags, 
+                         totalTime, Nanos(outTime(0)))
     }
+
+      // Save a screenshot
+      //import java.awt.image.BufferedImage
+      //com.jogamp.opengl.util.awt.Screenshot.writeToFile(new java.io.File("tuner_"+tuner.Tuner.imgNum+".png"), 800, 600)
+      //tuner.Tuner.imgNum += 1
   }
 
   /**

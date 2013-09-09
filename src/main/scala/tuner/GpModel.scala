@@ -160,6 +160,34 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
     theta * math.pow(math.abs(x1 - x2), alpha)
   }
 
+  def pointsPassed(focusPt:List[(String,Float)], ranges:DimRanges) : Int = {
+    val mapx = focusPt.toMap
+    val xx = dims.map({mapx.get(_)}).flatten.map(_.toDouble).toArray
+    val maxSqDist = -math.log(Config.minSampleEffect)
+    var pp = 0
+    for(d1 <- 0 until dims.length) {
+      val rng1 = {
+        val tmp = ranges(dims(d1))
+        (tmp._1.toDouble, tmp._2.toDouble)
+      }
+      for(d2 <- (d1+1) until dims.length) {
+        val rng2 = {
+          val tmp = ranges(dims(d2))
+          (tmp._1.toDouble, tmp._2.toDouble)
+        }
+        // pass
+        for(i <- 0 until design.rows) {
+          val pt = design.getRow(i).toArray
+          val sqDist = vertexDist(xx, pt, d1, d2)
+          if(sqDist < maxSqDist) {
+            pp += 1
+          }
+        }
+      }
+    }
+    pp
+  }
+
   def fragmentsDrawn(focusPt:List[(String,Float)], ranges:DimRanges) : Float = {
     val mapx = focusPt.toMap
     val xx = dims.map({mapx.get(_)}).flatten.map(_.toDouble).toArray
