@@ -163,7 +163,7 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
   def fragmentsDrawn(focusPt:List[(String,Float)], ranges:DimRanges) : Float = {
     val mapx = focusPt.toMap
     val xx = dims.map({mapx.get(_)}).flatten.map(_.toDouble).toArray
-    val maxSqDist = -math.log(Config.maxSampleSqDistance)
+    val maxSqDist = -math.log(Config.minSampleEffect)
     var frags = 0.0
     for(d1 <- 0 until dims.length) {
       val rng1 = {
@@ -193,7 +193,7 @@ class GpModel(val thetas:DoubleMatrix, val alphas:DoubleMatrix,
                              xRng:(Double,Double), yRng:(Double,Double)) = {
     val x = pt(d1)
     val y = pt(d2)
-    val maxExtent = -math.log(Config.maxSampleSqDistance) - sqDist
+    val maxExtent = -math.log(Config.minSampleEffect) - sqDist
     val maxXDist = math.sqrt(maxExtent / thetas.get(d1))
     val maxYDist = math.sqrt(maxExtent / thetas.get(d2))
     // need to clamp these to data space
