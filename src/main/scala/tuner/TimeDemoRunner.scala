@@ -9,14 +9,14 @@ import tuner.project.ProjConfig
 import tuner.project.Viewable
 
 object TimeDemo {
-  val maxDist = -math.log(Config.maxSampleSqDistance)
+  val maxDist = -math.log(Config.minSampleEffect)
 
   def theta2Radius(theta:Float, d:Int) : Float = {
-    math.sqrt(maxDist / theta / d.toFloat).toFloat
+    math.sqrt(maxDist / theta).toFloat
   }
 
   def radius2Theta(radius:Float, d:Int) : Float = {
-    (maxDist / (radius*radius) / d.toFloat).toFloat
+    (maxDist / (radius*radius)).toFloat
   }
 }
 
